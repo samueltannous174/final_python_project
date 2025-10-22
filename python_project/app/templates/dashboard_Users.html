@@ -2,10 +2,11 @@
 <html>
 
 <head>
+    {% load static %}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 
 <body class="bg-blue-50">
@@ -22,8 +23,7 @@
                 </div>
             </div>
         </div>
-        <img class="rounded-r-[1.3em] ml-5" src="./european-luxury-medical-clinic-brand-new-empty-33655077.jpg" alt="">
+        <img class="rounded-r-[1.3em] ml-5" src="{% static 'european-luxury-medical-clinic-brand-new-empty-33655077.jpg' %}" alt="">
     </div>
-    
 </body>
 </html>
