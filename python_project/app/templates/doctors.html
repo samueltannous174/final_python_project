@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctors Directory</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    
+      
+
+
+  <div class="mx-auto max-w-7xl p-6 ">
+    <div class="flex items-center gap-3">
+      <div class=" flex-1">
+    
+        <input type="text" placeholder="Search doctors by name or specialty..." class="w-full rounded-full border border-slate-200 bg-white py-3 pl-12 pr-4 text-[15px] shadow-sm outline-none" />
+      </div>
+      <button class=" items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 ">
+        Filter
+      </button>
+    </div>
+
+    <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+ 
+      <div class="rounded-2xl border border-slate-200 bg-white p-6 ">
+        <header class="flex items-start gap-4">
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600">DSJ</div>
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold ">Dr. Sarah Johnson</h3>
+            <p class="text-sm text-slate-500">Cardiology</p>
+          </div>
+        </header>
+        <dl class="mt-5 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+          <div class="text-slate-500">Experience:</div>
+          <div class="text-right ">12 years</div>
+        </dl>
+        <footer class="mt-5 flex items-center justify-between">
+          <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">Available</span>
+          <a href="" class="text-sm font-medium text-brand-500 ">View Profile</a>
+        </footer>
+      </div>
+
+
+    </div>
+  </div>
+</body>
+</html>

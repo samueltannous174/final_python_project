@@ -2,7 +2,6 @@
 from django.db import models
 
 
-
 class User(models.Model):
     ROLE_CHOICES = [
         ('doctor', 'Doctor'),
@@ -27,6 +26,9 @@ class Doctor(models.Model):
     specialization = models.CharField(max_length=255)
     years_of_experience = models.PositiveIntegerField()
     bio = models.TextField(blank=True, null=True)
+    avalibilty = models.CharField(max_length=255)
+
+
 
     def __str__(self):
         return f"Dr. {self.user.get_full_name()} - {self.specialization}"
