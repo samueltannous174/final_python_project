@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+
+<head>
+    {% load static %}
+    <meta charset="UTF-8" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+
+<body class="bg-blue-50">
+    <div class="flex px-20 w-460 mx-auto mt-10">
+        <div class="w-200 pt-10">
+            <div
+                class="border mb-6 bg-[#51A2FE] text-white pl-4 h-15 flex items-center text-2xl rounded-[0.3em] w-170 ml-10">
+                <h2>10 New Appointments to confirm</h2>
+            </div>
+            <div class="bg-[#D1D5DC] rounded-2xl p-6 shadow-md w-170 text-center ml-10 mb-10">
+                <div class="flex justify-between items-center mb-4 text-gray-700">
+                    <button id="prevMonth" class="p-2 rounded hover:bg-gray-300 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <h2 id="monthYear" class="text-lg font-semibold">March 2017</h2>
+                    <button id="nextMonth" class="p-2 rounded hover:bg-gray-300 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="grid grid-cols-7 text-sm text-gray-600 mb-2">
+                    <div>Sun</div>
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div>Sat</div>
+                </div>
+                <div id="calendarDays" class="grid grid-cols-7 gap-y-2 text-gray-700"></div>
+            </div>
+            <div
+                class="border mb-6 bg-[#91A1BA] text-gray-700 pl-4 h-15 flex items-center text-2xl rounded-[0.3em] w-170 ml-10">
+                <h2>Add Appointment</h2>
+            </div>
+            <div
+                class="border mb-6 bg-[#91A1BA] text-gray-700 pl-4 h-15 flex items-center text-2xl rounded-[0.3em] w-170 ml-10">
+                <h2>Block Time</h2>
+            </div>
+        </div>
+        <div class="w-200 mt-10 h-190 overflow-y-auto pt-10 bg-[#D1D5DC] rounded-2xl">
+            <div class="flex items-center justify-between w-170 mx-auto mb-10">
+                <h2 class="text-2xl">5 Confirmed Appointments Today<span class="text-blue-400">+ 1 New</span></h2>
+                <h2 class="text-2xl">8 March 2017</h2>
+            </div>
+            <div class=" bg-[#91A1BA] flex items-center justify-between py-3.5 px-10 mx-auto w-170 rounded-[1em]">
+                <div class="flex items-center justify-between w-70">
+                    <h2 class="text-2xl">9:00 Am</h2>
+                    <h2 class="text-2xl">Client Name</h2>
+                </div>
+                <select name="" id="">
+                    <option value="">Service</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'code.js' %}"></script>
+</body>
+
+</html>
