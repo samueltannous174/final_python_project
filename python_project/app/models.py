@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import re
 import bcrypt
+from django.db.models import Q
 
 
 
@@ -155,7 +156,7 @@ class Doctor(models.Model):
     specialization = models.CharField(max_length=255)
     years_of_experience = models.PositiveIntegerField()
     bio = models.TextField(blank=True, null=True)
-    availability = models.CharField(max_length=255)
+    availability = models.CharField(max_length=255, default='Available')
     certificate = models.TextField(blank=True, null=True)
     objects = DoctorManager()
 
@@ -205,21 +206,18 @@ class MedicalCase(models.Model):
 
 
 
-
-
 import bcrypt
 from django.db import transaction
 from .models import User, Doctor, Patient
 
-def create_user_with_role(data):
-    pw_hash = bcrypt.hashpw(data['password'].encode(), bcrypt.gensalt()).decode()
+def create_user_with_role(data,hashed):
     role = data.get('role', '').lower().strip()
 
     user = User.objects.create(
             email=data['email'].strip().lower(),
             first_name=data['first_name'].strip(),
             last_name=data['last_name'].strip(),
-            password=pw_hash,
+            password=hashed,
             role=role,
             phone=(data.get('phone') or '').strip() or None,
         )
@@ -243,3 +241,41 @@ def create_user_with_role(data):
             )
 
     return user
+
+
+def login_user(data):
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '').strip()
+
+    user = User.objects.filter(email__iexact=email).first()
+
+    if not user:
+        return None
+
+    try:
+        hashed = user.password.encode() if isinstance(user.password, str) else user.password
+        if not bcrypt.checkpw(password.encode(), hashed):
+            return None
+    except Exception:
+        return None
+
+    return user
+
+
+def  get_all_doctors():
+    
+    
+    return Doctor.objects.all()
+
+
+def filter_doctors(query: str = ""):
+    doctors = Doctor.objects.select_related('user')
+
+    if query:
+        doctors = doctors.filter(
+            Q(user__first_name__icontains=query) |
+            Q(user__last_name__icontains=query) |
+            Q(specialization__icontains=query)
+        )
+
+    return doctors

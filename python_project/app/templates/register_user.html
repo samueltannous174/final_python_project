@@ -42,7 +42,7 @@
 
       <form class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4" action="/register_user_submit/" method="post">
         {% csrf_token %}
-        
+
           <input type="hidden" name="role" value="patient">
 
         <div>
@@ -77,16 +77,14 @@
 
         <div>
 
-        <label for="dob" class="block text-sm font-medium text-slate-700">Date of Birth</label>
-        <input id="dob" name="dob" type="date" max="2007-01-01"
-        class="mt-1 h-12 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 text-slate-900 outline-none focus:border-slate-400 focus:bg-white focus:shadow-inner" />
-        <p class="mt-1 text-xs text-slate-500">For verification. We won't share this publicly.</p>
+        <label for="dob" class="block text-sm font-medium text-slate-700">Age</label>
+        <input id="dob" name="dob" type="age" max="2007-01-01"
+        class="mt-1 h-12 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 text-slate-900 outline-none " />
         </div>
 
 
-
         <div>
-                      <label for="confirm" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+          <label for="confirm" class="block text-sm font-medium text-gray-700">Confirm Password</label>
           <input id="confirm" name="confirm" type="password" required
                  class="mt-1 h-12 w-full border border-gray-300 bg-gray-50 px-4 text-gray-900 outline-none " />
 
@@ -95,6 +93,32 @@
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
           <input id="password" name="password" type="password" required
+                 class="mt-1 h-12 w-full border border-gray-300 bg-gray-50 px-4 text-gray-900 outline-none " />
+        </div>
+
+        <div>
+          <label for="blood_type" class="block text-sm font-medium text-gray-700">Blood Type</label>
+          <select id="blood_type" name="blood_type" class="mt-1 h-12 w-full border border-gray-300 bg-gray-50 px-4 text-gray-900 outline-none">
+            <option value="">Select</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+
+
+            {% for blood_type in blood_types %}
+                <option value="{{ blood_type }}">{{ blood_type }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+          <div>
+          <label for="pressure" class="block text-sm font-medium text-gray-700">Blood Pressure</label>
+          <input id="pressure" name="blood_pressure" required
                  class="mt-1 h-12 w-full border border-gray-300 bg-gray-50 px-4 text-gray-900 outline-none " />
         </div>
 
