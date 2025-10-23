@@ -34,19 +34,27 @@ def showHistory(request):
 def showChatBot(request):
     return render(request,'chatbot.html')
 
-def register(request):
+
+
+def RegisterUser(request):
+    print(request.POST)
     if request.method == 'POST':
-        errors = User.objects.Register_validator(request.POST)
+        errors = User.objects.register_validator(request.POST)
         if errors:
             for msg in errors.values():
-                messages.error(request, msg, extra_tags='register')
+                messages.error(request, msg, extra_tags='login')
             return redirect('/')
         
-        create_user(request.POST)
+        user= create_user_with_role(request.POST)
+        request.session['id'] = user.id
+        request.session['name'] = user.first_name
 
-        messages.success(request, "Registration successful! You can now log in.", extra_tags='register')
-        return redirect('/')
+        return redirect('/success')
+
     return redirect('/')
+
+
+
 
 
 def showLogin(request):
