@@ -12,4 +12,6 @@ urlpatterns = [
     path('home/', views.showHome),
     path('history/', views.showHistory),
     path('chatbot/', views.showChatBot),
+    path ('register_user_submit/', views.RegisterUser),
+    
 ]

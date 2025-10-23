@@ -40,7 +40,11 @@
       <h1 class="text-center text-2xl font-semibold text-gray-800">Register</h1>
       <p class="mt-1 text-center text-gray-500">Join CareClinic to manage your practice</p>
 
-      <form class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4" action="/register_user_submit/" method="post">
+        {% csrf_token %}
+        
+          <input type="hidden" name="role" value="patient">
+
         <div>
           <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
           <input id="first_name" name="first_name" type="text" required
@@ -94,6 +98,7 @@
                  class="mt-1 h-12 w-full border border-gray-300 bg-gray-50 px-4 text-gray-900 outline-none " />
         </div>
 
+
         <div class="md:col-span-2">
           <button type="submit"
                   class="mt-2 h-12 w-full bg-gray-900 text-white  ">
@@ -101,6 +106,14 @@
           </button>
         </div>
       </form>
+
+      {% if messages %} 
+        <div class="mt-4">
+          {% for message in messages %}
+            <p class="text-red-500">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
 
       <div class="mt-4">
         <a href="/login" class="text-gray-600 underline">Sign in</a>
