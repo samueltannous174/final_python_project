@@ -10,10 +10,11 @@
 </head>
 
 <body class="bg-blue-50">
-       <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white">
+    <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white">
   <h1 class="text-2xl font-semibold">CareClinic</h1>
 
   <div class="flex items-center gap-10 text-lg">
+  
     <a href="/home" class="flex items-center gap-2  px-4 py-2 rounded-xl">
       Home
     </a>
@@ -31,9 +32,16 @@
     </a>
   </div>
 
-  <div class="flex items-center gap-2 text-lg font-semibold">
+  {% if request.session.name %}
+  <div class="flex items-center gap-8 text-lg font-semibold">
+    <p class="text-amber-300">Welcome, {{request.session.name}}</p>
     <a href="/logout" class="hover:underline">Logout</a>
   </div>
+  {% else %}
+  <div class="flex items-center gap-8 text-lg font-semibold">
+    <a href="/login" class="hover:underline">Login</a>
+  </div>
+  {% endif %}
 </nav>
 
     
