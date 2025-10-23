@@ -10,6 +10,33 @@
 </head>
 
 <body class="bg-blue-50">
+       <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white">
+  <h1 class="text-2xl font-semibold">CareClinic</h1>
+
+  <div class="flex items-center gap-10 text-lg">
+    <a href="/home" class="flex items-center gap-2  px-4 py-2 rounded-xl">
+      Home
+    </a>
+
+    <a href="/appointments" class="flex items-center gap-2 ">
+      Appointments
+    </a>
+
+    <a href="/doctors" class="flex items-center gap-2 ">
+      Doctors
+    </a>
+
+    <a href="/history" class="flex items-center gap-2 ">
+      History
+    </a>
+  </div>
+
+  <div class="flex items-center gap-2 text-lg font-semibold">
+    <a href="/logout" class="hover:underline">Logout</a>
+  </div>
+</nav>
+
+    
     <div class="flex w-400 h-130 mx-auto mt-20 bg-gray-300 rounded-[1.3em]">
         <div class="w-200">
             <h1 class="mt-10 ml-6 text-3xl">Welcome to Medical Clinc Application</h1>
@@ -26,8 +53,8 @@
         <img class="rounded-r-[1.3em] ml-5" src="{% static 'european-luxury-medical-clinic-brand-new-empty-33655077.jpg' %}" alt="">
     </div>
     <div class="flex w-100 mt-15 mx-auto py-20 px-10 justify-between">
-        <a href="#" class="border bg-green-500 text-gray-100 px-8 py-2 text-[1.2em] rounded-2xl ">Login</a>
-        <a href="#" class="border bg-yellow-500 text-gray-100 px-8 py-2 text-[1.2em] rounded-2xl">Signup</a>
+        <a href="/login" class="border bg-green-500 text-gray-100 px-8 py-2 text-[1.2em] rounded-2xl ">Login</a>
+        <a href="/register_doctor" class="border bg-yellow-500 text-gray-100 px-8 py-2 text-[1.2em] rounded-2xl">Signup</a>
     </div>
 </body>
 </html>

@@ -1,5 +1,9 @@
 
 from django.db import models
+from django.contrib.auth.models import User
+import re
+
+
 
 
 class User(models.Model):
@@ -27,6 +31,7 @@ class Doctor(models.Model):
     years_of_experience = models.PositiveIntegerField()
     bio = models.TextField(blank=True, null=True)
     avalibilty = models.CharField(max_length=255)
+    certificate = models.TextField(blank=True, null=True)
 
 
 

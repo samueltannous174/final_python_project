@@ -7,7 +7,33 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-blue-50 text-gray-800">
-    
+   <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white">
+  <h1 class="text-2xl font-semibold">CareClinic</h1>
+
+  <div class="flex items-center gap-10 text-lg">
+    <a href="/home" class="flex items-center gap-2  px-4 py-2 rounded-xl">
+      Home
+    </a>
+
+    <a href="/appointments" class="flex items-center gap-2 ">
+      Appointments
+    </a>
+
+    <a href="/doctors" class="flex items-center gap-2 ">
+      Doctors
+    </a>
+
+    <a href="/history" class="flex items-center gap-2 ">
+      History
+    </a>
+  </div>
+
+  <div class="flex items-center gap-2 text-lg font-semibold">
+    <a href="/logout" class="hover:underline">Logout</a>
+  </div>
+</nav>
+
+
       
 
 
@@ -15,7 +41,7 @@
     <div class="flex items-center gap-3">
       <div class=" flex-1">
     
-        <input type="text" placeholder="Search doctors by name or specialty..." class="w-full rounded-full border border-gray-200 bg-white py-3 pl-12 pr-4 text-[15px]  outline-none" />
+        <input type="text" placeholder="Search doctors by name or specialty" class="w-full rounded-full border border-gray-200 bg-white py-3 pl-12 pr-4 text-[15px]  outline-none" />
       </div>
       <button class=" items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 ">
         Filter
@@ -28,7 +54,7 @@
         <div class="flex items-start gap-4">
           <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-600">DSJ</div>
           <div class="flex-1">
-            <h3 class="text-lg font-semibold ">Dr. Sarah Johnson</h3>
+            <h3 class="text-lg font-semibold ">Dr. Naem Abueideh</h3>
             <p class="text-sm text-gray-500">Cardiology</p>
           </div>
         </div>
@@ -39,11 +65,32 @@
         <div class="mt-5 flex items-center justify-between">
           <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 ">Available</span>
           <a href="" class="text-sm font-medium  ">View Profile</a>
+          
+        </div>
+      </div>
+
+         <div class="rounded-2xl border border-gray-200 bg-white p-6 ">
+        <div class="flex items-start gap-4">
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-600">DSJ</div>
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold ">Dr. Samuel Tannous</h3>
+            <p class="text-sm text-gray-500">Cardiology</p>
+          </div>
+        </div>
+        <div class="mt-5 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+          <div class="text-gray-500">Experience:</div>
+          <div class="text-right ">12 years</div>
+        </div>
+        <div class="mt-5 flex items-center justify-between">
+          <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 ">Available</span>
+          <a href="" class="text-sm font-medium  ">View Profile</a>
+          
         </div>
       </div>
 
 
     </div>
+    
   </div>
 </body>
 </html>
