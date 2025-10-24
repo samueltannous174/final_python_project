@@ -17,7 +17,6 @@ class UserManager(models.Manager):
     def register_validator(self, postData):
 
         errors = {}
-        username = (postData.get('username') or '').strip()
         email = (postData.get('email') or '').strip().lower()
         first = (postData.get('first_name') or '').strip()
         last = (postData.get('last_name') or '').strip()
@@ -148,7 +147,7 @@ class User(models.Model):
     objects = UserManager()
 
     def __str__(self):
-        return f"{self.username} ({self.role})"
+        return f"{self.first_name} {self.last_name} ({self.role})"
     
 
 class Doctor(models.Model):
@@ -163,7 +162,7 @@ class Doctor(models.Model):
 
 
     def __str__(self):
-        return f"Dr. {self.user.get_full_name()} - {self.specialization}"
+        return f"Dr. {self.user.first_name} {self.user.last_name} - {self.specialization}"
 
 
 
@@ -175,7 +174,7 @@ class Patient(models.Model):
     objects = PatientManager()
 
     def __str__(self):
-        return self.user.get_full_name()
+        return self.user.first_name
 
 
 
