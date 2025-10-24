@@ -1,101 +1,138 @@
 <!doctype html>
-<html>
-
+<html lang="en">
 <head>
-    {% load static %}
-    <meta charset="UTF-8" /> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+  {% load static %}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <title>Appointments</title>
 </head>
-
 <body class="bg-blue-50">
-     <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white">
-  <h1 class="text-2xl font-semibold">CareClinic</h1>
-
-  <div class="flex items-center gap-10 text-lg">
-    <a href="/home" class="flex items-center gap-2  px-4 py-2 rounded-xl">
-      Home
-    </a>
-
-    <a href="/appointments" class="flex items-center gap-2 ">
-      Appointments
-    </a>
-
-    <a href="/doctors" class="flex items-center gap-2 ">
-      Doctors
-    </a>
-
-    <a href="/history" class="flex items-center gap-2 ">
-      History
-    </a>
-  </div>
-
-  <div class="flex items-center gap-2 text-lg font-semibold">
-    <a href="/logout" class="hover:underline">Logout</a>
-  </div>
-</nav>
-
-
-    <div class="flex px-20 w-460 mx-auto mt-10">
-        <div class="w-200 pt-10">
-            <div
-                class="border mb-6 bg-[#51A2FE] text-white pl-4 h-15 flex items-center text-2xl rounded-[0.3em] w-170 ml-10">
-                <h2>10 New Appointments to confirm</h2>
-            </div>
-            <div class="bg-[#D1D5DC] rounded-2xl p-6 shadow-md w-170 text-center ml-10 mb-10">
-                <div class="flex justify-between items-center mb-4 text-gray-700">
-                    <button id="prevMonth" class="p-2 rounded hover:bg-gray-300 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                    <h2 id="monthYear" class="text-lg font-semibold">March 2017</h2>
-                    <button id="nextMonth" class="p-2 rounded hover:bg-gray-300 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="grid grid-cols-7 text-sm text-gray-600 mb-2">
-                    <div>Sun</div>
-                    <div>Mon</div>
-                    <div>Tue</div>
-                    <div>Wed</div>
-                    <div>Thu</div>
-                    <div>Fri</div>
-                    <div>Sat</div>
-                </div>
-                <div id="calendarDays" class="grid grid-cols-7 gap-y-2 text-gray-700"></div>
-            </div>
-            <div
-                class="border mb-6 bg-[#91A1BA] text-gray-700 pl-4 h-15 flex items-center text-2xl rounded-[0.3em] w-170 ml-10">
-                <h2>Add Appointment</h2>
-            </div>
-            <div
-                class="border mb-6 bg-[#91A1BA] text-gray-700 pl-4 h-15 flex items-center text-2xl rounded-[0.3em] w-170 ml-10">
-                <h2>Block Time</h2>
-            </div>
-        </div>
-        <div class="w-200 mt-10 h-190 overflow-y-auto pt-10 bg-[#D1D5DC] rounded-2xl">
-            <div class="flex items-center justify-between w-170 mx-auto mb-10">
-                <h2 class="text-2xl">5 Confirmed Appointments Today<span class="text-blue-400">+ 1 New</span></h2>
-                <h2 class="text-2xl">8 March 2017</h2>
-            </div>
-            <div class=" bg-[#91A1BA] flex items-center justify-between py-3.5 px-10 mx-auto w-170 rounded-[1em]">
-                <div class="flex items-center justify-between w-70">
-                    <h2 class="text-2xl">9:00 Am</h2>
-                    <h2 class="text-2xl">Client Name</h2>
-                </div>
-                <select name="" id="">
-                    <option value="">Service</option>
-                </select>
-            </div>
-        </div>
+  <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white">
+    <h1 class="text-2xl font-semibold">CareClinic</h1>
+    <div class="flex items-center gap-10 text-lg">
+      <a href="/home" class="flex items-center gap-2 px-4 py-2 rounded-xl">Home</a>
+      <a href="/appointments" class="flex items-center gap-2">Appointments</a>
+      <a href="/doctors" class="flex items-center gap-2">Doctors</a>
+      <a href="/history" class="flex items-center gap-2">History</a>
     </div>
-    <script src="{% static 'code.js' %}"></script>
-</body>
+    <div class="flex items-center gap-2 text-lg font-semibold">
+      <a href="/logout" class="hover:underline">Logout</a>
+    </div>
+  </nav>
 
+  {% if messages %}
+    <div class="max-w-4xl mx-auto mt-4 space-y-2">
+      {% for message in messages %}
+        <div class="px-4 py-3 rounded text-white
+                    {% if message.tags == 'success' %}bg-green-600
+                    {% elif message.tags == 'warning' %}bg-yellow-600
+                    {% elif message.tags == 'error' %}bg-red-600
+                    {% else %}bg-gray-700{% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% with did=doctor_id|default:doctor_pk %}
+  <div class="flex px-20 w-460 mx-auto mt-10">
+    <div class="w-200 pt-10">
+      <div class="border mb-6 bg-[#51A2FE] text-white pl-4 h-15 flex items-center text-2xl rounded-[0.3em] w-170 ml-10">
+        <h2>10 New Appointments to confirm</h2>
+      </div>
+
+      <div class="bg-[#D1D5DC] rounded-2xl p-6 shadow-md w-170 text-center ml-10 mb-10">
+        <div class="flex justify-between items-center mb-4 text-gray-700">
+          <a href="?year={{ prev_year }}&month={{ prev_month }}{% if selected_day %}&day={{ selected_day.day }}{% endif %}{% if did %}&doctor={{ did }}{% endif %}"
+             class="p-2 rounded hover:bg-gray-300 transition" aria-label="Previous month">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </a>
+
+          <h2 class="text-lg font-semibold">{{ month_label }}</h2>
+
+          <a href="?year={{ next_year }}&month={{ next_month }}{% if selected_day %}&day={{ selected_day.day }}{% endif %}{% if did %}&doctor={{ did }}{% endif %}"
+             class="p-2 rounded hover:bg-gray-300 transition" aria-label="Next month">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+
+        <div class="grid grid-cols-7 text-sm text-gray-600 mb-2">
+          <div>Sun</div><div>Mon</div><div>Tue</div>
+          <div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+        </div>
+
+        <div class="grid grid-cols-7 gap-y-2 text-gray-700">
+          {% for week in weeks %}
+            {% for day in week %}
+              {% if day.month != month %}
+                <div class="text-gray-400 text-center">{{ day.day }}</div>
+              {% elif day == today %}
+                <a href="?year={{ year }}&month={{ month }}&day={{ day.day }}{% if did %}&doctor={{ did }}{% endif %}"
+                   class="block font-semibold text-blue-500 rounded-full border border-blue-400 text-center">
+                  {{ day.day }}
+                </a>
+              {% elif selected_day and day == selected_day %}
+                <a href="?year={{ year }}&month={{ month }}&day={{ day.day }}{% if did %}&doctor={{ did }}{% endif %}"
+                   class="block bg-blue-200 rounded-full font-semibold text-center">
+                  {{ day.day }}
+                </a>
+              {% else %}
+                <a href="?year={{ year }}&month={{ month }}&day={{ day.day }}{% if did %}&doctor={{ did }}{% endif %}"
+                   class="block hover:bg-blue-100 rounded-full transition text-center">
+                  {{ day.day }}
+                </a>
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="border mb-6 bg-[#91A1BA] text-gray-700 pl-4 h-15 flex items-center text-2xl rounded-[0.3em] w-170 ml-10">
+        <h2>Add Appointment</h2>
+      </div>
+      <div class="border mb-6 bg-[#91A1BA] text-gray-700 pl-4 h-15 flex items-center text-2xl rounded-[0.3em] w-170 ml-10">
+        <h2>Block Time</h2>
+      </div>
+    </div>
+
+    <div class="w-200 mt-10 h-190 overflow-y-auto pt-10 bg-[#D1D5DC] rounded-2xl">
+      <div class="flex items-center justify-between w-170 mx-auto mb-10">
+        <h2 class="text-2xl">5 Confirmed Appointments Today <span class="text-blue-400">+ 1 New</span></h2>
+      </div>
+
+      {% if selected_day %}
+        <h2 class="text-2xl text-center mb-4">Appointments for {{ selected_day|date:"j F Y" }}</h2>
+
+        {% for slot in time_slots %}
+          {% with hhmm=slot|time:'H:i' %}
+          <form method="POST" class="bg-[#91A1BA] flex items-center justify-between py-3.5 px-10 mx-auto w-170 rounded-[1em] mb-4">
+            {% csrf_token %}
+            <input type="hidden" name="time_slot" value="{{ hhmm }}">
+            {% if did %}
+              <input type="hidden" name="doctor" value="{{ did }}">
+            {% endif %}
+            <div class="flex items-center justify-between w-70">
+              <h2 class="text-2xl">{{ slot|time:"g:i A" }}</h2>
+              {% if booked_slots and hhmm in booked_slots %}
+                <button type="button" disabled class="text-2xl bg-gray-400 text-white px-4 py-1 rounded cursor-not-allowed">Booked</button>
+              {% else %}
+                <button type="submit" class="text-2xl bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition">Apply</button>
+              {% endif %}
+            </div>
+          </form>
+          {% endwith %}
+        {% endfor %}
+      {% else %}
+        <p class="text-center text-gray-600 text-lg">Select a day from the calendar</p>
+      {% endif %}
+    </div>
+  </div>
+  {% endwith %}
+</body>
 </html>

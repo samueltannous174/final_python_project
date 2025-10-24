@@ -40,6 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+VAR_DIR = os.path.join(BASE_DIR, "var")
+os.makedirs(VAR_DIR, exist_ok=True)
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

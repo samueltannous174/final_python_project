@@ -1,8 +1,19 @@
 from django.shortcuts import render
 from .models import *
+from datetime import date, datetime, time
+from calendar import Calendar, month_name
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.shortcuts import redirect
 import bcrypt
+
+from datetime import date, datetime, time, timedelta
+from calendar import Calendar, month_name
+from django.utils import timezone
+from urllib.parse import urlencode
+
+
+
 
 from django.http import HttpResponse
 
@@ -18,8 +29,7 @@ def showRegisterUser(request):
 def showRegisterDoctor(request):
     return render(request,'register_doctor.html')
 
-def showAppoitments(request):
-    return render(request,'appointment.html')
+
 
 def  showHome(request):
     return render(request,'dashboard_login_register.html')
@@ -96,3 +106,127 @@ def logout(request):
     request.session.flush()
     messages.success(request, "You have been logged out.", extra_tags='login')
     return redirect('/')
+
+
+
+
+def showAppoitments(request):
+    today = date.today()
+    year = int(request.GET.get("year", today.year))
+    month = int(request.GET.get("month", today.month))
+    day_param = request.GET.get("day")
+
+    doctor_id = request.POST.get("doctor") or request.GET.get("doctor")
+    print(doctor_id)
+
+    cal = Calendar(firstweekday=6)
+    weeks = cal.monthdatescalendar(year, month)
+
+    prev_year, prev_month = (year - 1, 12) if month == 1 else (year, month - 1)
+    next_year, next_month = (year + 1, 1) if month == 12 else (year, month + 1)
+
+    selected_day = None
+    if day_param:
+        try:
+            selected_day = date(year, month, int(day_param))
+        except ValueError:
+            selected_day = None
+
+    time_slots = [time(h, 0) for h in range(9, 15)]
+
+    doctor = Doctor.objects.filter(pk=doctor_id).first() if doctor_id else None
+    if not doctor:
+        doctor = Doctor.objects.first() 
+    if not doctor_id and doctor:
+        doctor_id = str(doctor.pk)
+
+    user_patient_pk =  request.session.get("id")
+    print(user_patient_pk)
+    user = User.objects.get(pk=user_patient_pk)
+    print(user)
+    patient = getattr(user, "patient_profile", None)
+    print("zz")
+    print(patient)
+
+    
+
+    appointments_for_day = []
+    booked_slots = set()
+    tz = timezone.get_current_timezone()
+
+    def redirect_same(_year: int, _month: int, _day: int | None):
+        params = {"year": _year, "month": _month}
+        if _day is not None:
+            params["day"] = _day
+        if doctor_id:
+            params["doctor"] = doctor_id
+        return redirect(f"{request.path}?{urlencode(params)}")
+
+    if selected_day:
+        start_dt = datetime.combine(selected_day, time(0, 0), tzinfo=tz)
+        end_dt = start_dt + timedelta(days=1)
+
+        appointments_for_day = (
+            Appointment.objects
+            .filter(date__gte=start_dt, date__lt=end_dt)
+            .select_related("doctor", "patient")
+            .order_by("date")
+        )
+        for appt in appointments_for_day:
+            booked_slots.add(appt.date.strftime("%H:%M"))
+
+    if request.method == "POST":
+        if not selected_day:
+            messages.error(request, "Please select a day first.")
+            return redirect_same(year, month, None)
+
+        slot = request.POST.get("time_slot")
+        if not slot:
+            messages.error(request, "Missing time slot.")
+            return redirect_same(year, month, selected_day.day)
+
+        try:
+            slot_time = time.fromisoformat(slot)
+        except ValueError:
+            messages.error(request, "Invalid time slot.")
+            return redirect_same(year, month, selected_day.day)
+
+        appointment_dt = datetime.combine(selected_day, slot_time, tzinfo=tz)
+
+        if Appointment.objects.filter(date=appointment_dt).exists():
+            messages.warning(request, "That time is already booked.")
+            return redirect_same(year, month, selected_day.day)
+
+        print(doctor, patient)
+        if not doctor or not patient:
+            messages.error(request, "Doctor or patient not configured.")
+            return redirect_same(year, month, selected_day.day)
+
+        Appointment.objects.create(
+            doctor=doctor,
+            patient=patient,
+            date=appointment_dt,
+            reason="General Checkup",
+        )
+        messages.success(request, f"Appointment created at {appointment_dt.strftime('%I:%M %p')}.")
+        return redirect_same(year, month, selected_day.day)
+
+    context = {
+        "doctor_id": doctor_id,
+        "doctor_pk": doctor.pk if doctor else None,
+        "year": year,
+        "month": month,
+        "month_label": f"{month_name[month]} {year}",
+        "weeks": weeks,
+        "today": today,
+        "selected_day": selected_day,
+        "prev_year": prev_year,
+        "prev_month": prev_month,
+        "next_year": next_year,
+        "next_month": next_month,
+        "time_slots": time_slots,
+        "appointments_for_day": appointments_for_day,
+        "booked_slots": booked_slots,
+        "doctor_id": doctor_id,
+    }
+    return render(request, "appointment.html", context)
