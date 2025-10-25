@@ -23,6 +23,14 @@ def showRegisterUser(request):
 def showRegisterDoctor(request):
     return render(request,'register_doctor.html')
 
+def showPatientDetails(request, id):
+    user = models.get_user(id)
+    context = {
+        'user': user,
+        'patient': user.patient_profile
+    }
+    return render(request, 'patient_details.html', context)
+
 def  showHome(request):
     if 'id' not in request.session:
         return render(request,'dashboard_login_register.html')
