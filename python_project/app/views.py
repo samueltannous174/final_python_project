@@ -1,21 +1,15 @@
-from django.shortcuts import render
-from .models import *
-from datetime import date, datetime, time
-from calendar import Calendar, month_name
+from . import models
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.shortcuts import redirect
 import bcrypt
-
 from datetime import date, datetime, time, timedelta
 from calendar import Calendar, month_name
 from django.utils import timezone
 from urllib.parse import urlencode
 
+def user_details(id):
+    return models.get_user(id)
 
-
-
-from django.http import HttpResponse
 
 def login(request):
     return render(request,'login.html')
@@ -29,32 +23,49 @@ def showRegisterUser(request):
 def showRegisterDoctor(request):
     return render(request,'register_doctor.html')
 
-
-
 def  showHome(request):
-    return render(request,'dashboard_login_register.html')
+    if 'id' not in request.session:
+        return render(request,'dashboard_login_register.html')
+    
+    context = {
+        'user': user_details(request.session['id'])
+    }
+    return render(request,'dashboard_login_register.html', context)
 
 def showDoctors(request):
+    if 'id' not in request.session:
+        return redirect('/login')
     context = {
-        'doctors': get_all_doctors()
+        'doctors': models.get_all_doctors(),
+        'user': user_details(request.session['id'])
     }
-
     return render(request,'doctors.html',context)
 
 def showHistory(request):
-    return render(request,'history_case.html')
+    if 'id' not in request.session:
+        return redirect('/login')
+    context = {
+        'user': user_details(request.session['id'])
+    }
+    return render(request,'history_case.html', context)
 
 def showChatBot(request):
-    return render(request,'chatbot.html')
+    if 'id' not in request.session:
+        return redirect('/login')
+    context = {
+        'user': user_details(request.session['id'])
+    }
+    return render(request,'chatbot.html', context)
 
 def showLogin(request):
+    
     return render(request,'login.html')
 
 
 def RegisterUser(request):
     print(request.POST)
     if request.method == 'POST':
-        errors = User.objects.register_validator(request.POST)
+        errors = models.User.objects.register_validator(request.POST)
         if errors:
             for msg in errors.values():
                 messages.error(request, msg, extra_tags='login')
@@ -63,10 +74,8 @@ def RegisterUser(request):
             elif request.POST['role'] == 'doctor':
                 return redirect('/register_doctor')
         hashed = bcrypt.hashpw(request.POST['password'].encode(), bcrypt.gensalt()).decode()
-        user= create_user_with_role(request.POST,hashed)
+        user= models.create_user_with_role(request.POST,hashed)
         request.session['id'] = user.id
-        request.session['name'] = user.first_name
-
         return redirect('/home')
 
     return redirect('/')
@@ -75,16 +84,15 @@ def RegisterUser(request):
 def loginSubmit(request):
     print(request.POST)
     if request.method == 'POST':
-        errors = User.objects.login_validator(request.POST)
+        errors = models.User.objects.login_validator(request.POST)
         if errors:
             for msg in errors.values():
                 messages.error(request, msg, extra_tags='login')
             return redirect('/')
         
-        user = login_user(request.POST)
-
+        user = models.login_user(request.POST)
         request.session['id'] = user.id
-        request.session['name'] = user.first_name
+        
         messages.success(request, f"Welcome back, {user.first_name}!", extra_tags='login')
         return redirect('/home')
 
@@ -96,7 +104,7 @@ def filterDoctors(request):
     if request.method == "POST":
         query = request.POST.get("q", "").strip()
 
-    doctors = filter_doctors(query)
+    doctors = models.filter_doctors(query)
     return render(request, "doctors.html", {"doctors": doctors, "query": query})
 
 
@@ -115,37 +123,35 @@ def showAppoitments(request):
     year = int(request.GET.get("year", today.year))
     month = int(request.GET.get("month", today.month))
     day_param = request.GET.get("day")
-
+    
     doctor_id = request.POST.get("doctor") or request.GET.get("doctor")
-    print(doctor_id)
-
+    
     cal = Calendar(firstweekday=6)
     weeks = cal.monthdatescalendar(year, month)
-
+    
     prev_year, prev_month = (year - 1, 12) if month == 1 else (year, month - 1)
     next_year, next_month = (year + 1, 1) if month == 12 else (year, month + 1)
-
+    
     selected_day = None
     if day_param:
         try:
             selected_day = date(year, month, int(day_param))
         except ValueError:
             selected_day = None
-
+    
     time_slots = [time(h, 0) for h in range(9, 15)]
-
-    doctor = Doctor.objects.filter(pk=doctor_id).first() if doctor_id else None
+    
+    doctor = models.Doctor.objects.filter(pk=doctor_id).first() if doctor_id else None
     if not doctor:
-        doctor = Doctor.objects.first() 
+        doctor = models.Doctor.objects.first() 
     if not doctor_id and doctor:
         doctor_id = str(doctor.pk)
 
     user_patient_pk =  request.session.get("id")
     print(user_patient_pk)
-    user = User.objects.get(pk=user_patient_pk)
+    user = models.User.objects.get(pk=user_patient_pk)
     print(user)
     patient = getattr(user, "patient_profile", None)
-    print("zz")
     print(patient)
 
     
@@ -167,7 +173,7 @@ def showAppoitments(request):
         end_dt = start_dt + timedelta(days=1)
 
         appointments_for_day = (
-            Appointment.objects
+            models.Appointment.objects
             .filter(date__gte=start_dt, date__lt=end_dt)
             .select_related("doctor", "patient")
             .order_by("date")
@@ -193,7 +199,7 @@ def showAppoitments(request):
 
         appointment_dt = datetime.combine(selected_day, slot_time, tzinfo=tz)
 
-        if Appointment.objects.filter(date=appointment_dt).exists():
+        if models.Appointment.objects.filter(date=appointment_dt).exists():
             messages.warning(request, "That time is already booked.")
             return redirect_same(year, month, selected_day.day)
 
@@ -202,7 +208,7 @@ def showAppoitments(request):
             messages.error(request, "Doctor or patient not configured.")
             return redirect_same(year, month, selected_day.day)
 
-        Appointment.objects.create(
+        models.Appointment.objects.create(
             doctor=doctor,
             patient=patient,
             date=appointment_dt,

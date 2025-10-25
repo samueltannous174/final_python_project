@@ -5,8 +5,6 @@ import re
 import bcrypt
 from django.db.models import Q
 
-
-
 EMAIL_RE = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
 PHONE_RE = re.compile(r'^\+?[0-9]{7,15}$')
 BLOOD_TYPES = {'A+','A-','B+','B-','AB+','AB-','O+','O-'}
@@ -202,13 +200,6 @@ class MedicalCase(models.Model):
     def __str__(self):
         return f"{self.title} ({self.patient.user.last_name})"
 
-
-
-
-import bcrypt
-from django.db import transaction
-from .models import User, Doctor, Patient
-
 def create_user_with_role(data,hashed):
     role = data.get('role', '').lower().strip()
 
@@ -247,7 +238,6 @@ def login_user(data):
     password = data.get('password', '').strip()
 
     user = User.objects.filter(email__iexact=email).first()
-
     if not user:
         return None
 
@@ -278,3 +268,6 @@ def filter_doctors(query: str = ""):
         )
 
     return doctors
+
+def get_user(id):
+    return User.objects.get(id = id)
