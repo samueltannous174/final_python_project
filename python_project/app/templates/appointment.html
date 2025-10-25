@@ -127,7 +127,7 @@
 
       {% for slot in time_slots %}
       {% with hhmm=slot|time:'H:i' %}
-      <form method="POST"
+      <form method="POST" accept="/add_time"
         class="bg-[#91A1BA] flex items-center justify-between py-3.5 px-10 mx-auto w-170 rounded-[1em] mb-4">
         {% csrf_token %}
         <input type="hidden" name="time_slot" value="{{ hhmm }}">

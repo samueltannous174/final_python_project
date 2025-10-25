@@ -32,6 +32,15 @@ def  showHome(request):
     }
     return render(request,'dashboard_login_register.html', context)
 
+def showPatients(request):
+    if 'id' not in request.session:
+        return redirect('/login')
+    context = {
+        'appointments': models.get_all_patients(request.session['id']),
+        'user': user_details(request.session['id'])
+    }
+    return render(request, 'patients.html', context)
+
 def showDoctors(request):
     if 'id' not in request.session:
         return redirect('/login')
@@ -236,3 +245,5 @@ def showAppoitments(request):
         "doctor_id": doctor_id,
     }
     return render(request, "appointment.html", context)
+
+

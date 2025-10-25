@@ -252,8 +252,6 @@ def login_user(data):
 
 
 def  get_all_doctors():
-    
-    
     return Doctor.objects.all()
 
 
@@ -271,3 +269,10 @@ def filter_doctors(query: str = ""):
 
 def get_user(id):
     return User.objects.get(id = id)
+
+
+def get_all_patients(doctor_id):
+    user = get_user(doctor_id)
+    doctor = user.doctor_profile
+    app = doctor.appointments.all()
+    return app
