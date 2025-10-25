@@ -16,4 +16,5 @@ urlpatterns = [
     path ('login_submit/', views.loginSubmit),
     path ('logout/', views.logout),
     path ('filter_doctors/', views.filterDoctors),
+    path('patients/', views.showPatients)
 ]
