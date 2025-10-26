@@ -116,6 +116,7 @@ class PatientManager(models.Manager):
             age = int(age_raw)
             if age < 1 or age > 120:
                 errors['age'] = 'Age must be between 1 and 120.'
+            
         except (TypeError, ValueError):
             errors['age'] = 'Age must be an integer.'
 

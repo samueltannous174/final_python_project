@@ -275,3 +275,18 @@ def showAppoitments(request):
     return render(request, "appointment.html", context)
 
 
+def filterPatients (request):
+    q = (request.POST.get('q') or '').strip()
+    patients = (
+        Patient.objects.select_related('user')
+        .filter(
+            Q(user__first_name__icontains=q)
+            | Q(user__last_name__icontains=q)
+            | Q(user__email__icontains=q)
+        )
+        if q else Patient.objects.select_related('user').all()
+    )
+    if request.headers.get('HX-Request'):
+        return render(request, "partials/_patient_cards.html", {"patients": patients})
+
+    return render(request,'patients.html')

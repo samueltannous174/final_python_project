@@ -5,8 +5,8 @@
   <title>AI Medicine Identifier</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
-    <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white">
+<body class="bg-gray-100 min-h-screen flex flex-col items-center  ">
+    <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white w-full">
     <h1 class="text-2xl font-semibold">CareClinic</h1>
 
     {% if user.role == 'patient' %}
@@ -34,7 +34,7 @@
       {% endif %}
     </div>
   </nav>
-  <h1 class="text-2xl font-semibold text-gray-800 mb-6">AI Medicine Identifier</h1>
+  <h1 class="text-2xl font-semibold text-gray-800 mb-6 mt-6">AI Medicine Identifier</h1>
 
   <form method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
     {% csrf_token %}
