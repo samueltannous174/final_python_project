@@ -156,6 +156,7 @@ class User(models.Model):
     objects = UserManager()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    gender = models.CharField(max_length=10)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.role})"
