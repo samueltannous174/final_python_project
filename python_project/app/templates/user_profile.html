@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Patient Profile - CareClinic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+
+  <body class="antialiased text-gray-800 bg-gray-50">
+    <nav
+      class="fixed top-0 left-0 w-full z-50 bg-[#475569] flex justify-between items-center px-10 py-4 text-white "
+    >
+      <h1 class="text-2xl font-semibold">CareClinic</h1>
+      <div class="flex items-center gap-10 text-lg">
+        <a href="/home" class="hover:underline">Home</a>
+        <a href="/appointments" class="hover:underline">Appointments</a>
+        <a href="/doctors" class="hover:underline">Doctors</a>
+        <a href="/history" class="hover:underline">History</a>
+      </div>
+      <a href="/logout" class="font-semibold hover:underline">Logout</a>
+    </nav>
+
+    <main class="pt-24 max-w-7xl mx-auto px-4">
+      <div
+        class="mb-6 flex items-center gap-2 text-gray-600 "
+      >
+        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        <a href="/patients" class="font-medium">Back to Patients</a>
+      </div>
+
+      <section
+        class="bg-white border border-gray-200 rounded-2xl p-6  mb-8"
+      >
+        <div
+          class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6"
+        >
+          <div class="flex items-start gap-6">
+            <div
+              class="h-20 w-20 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-xl font-bold select-none"
+            >
+              AJ
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex items-center gap-3">
+                <h2 class="text-2xl font-semibold">Alice Johnson</h2>
+            
+              </div>
+
+              <div class="flex flex-wrap gap-3 text-sm">
+                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full"
+                  >Female</span
+                >
+                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full"
+                  >34 yrs</span
+                >
+                <span class="bg-rose-100 text-rose-700 px-3 py-1 rounded-full"
+                  >Blood: O+</span
+                >
+                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full"
+                  >Insurance: CarePlus</span
+                >
+              </div>
+
+              <div class="flex flex-wrap gap-6 text-sm text-gray-600 pt-1">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="mail" class="w-4 h-4"></i>
+                  <span>alice.johnson@example.com</span>
+                </div>
+                <div class="flex items-center gap-2">
+                </div>
+                <div class="flex items-center gap-2">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-3">
+            <a
+              href="/appointments/new?patient=CC-10293"
+              class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-green-600 text-white font-medium "
+            >
+              <i data-lucide="calendar-plus" class="w-5 h-5"></i>
+              New Appointment
+            </a>
+      
+          </div>
+        </div>
+      </section>
+
+      <div class="flex gap-2 mb-6">
+        <button
+          data-tab-btn="overview"
+          class="tab-btn active px-4 py-2 rounded-full text-sm font-semibold bg-gray-900 text-white"
+        >
+          Overview
+        </button>
+        <button
+          data-tab-btn="appointments"
+          class="tab-btn px-4 py-2 rounded-full text-sm font-semibold bg-white text-gray-700 border"
+        >
+          Appointments
+        </button>
+        
+      </div>
+
+      <section data-tab="overview" class="tab-panel">
+        <div
+          class="bg-white border border-gray-200 rounded-2xl p-6  mb-6"
+        >
+          <div
+            class="flex items-center gap-2 mb-4 text-gray-800 font-semibold text-lg"
+          >
+            <i data-lucide="user-circle-2" class="w-5 h-5"></i>
+            <span>General Info</span>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-6 text-sm">
+            <div class="space-y-2">
+              <div class="flex items-center gap-2 text-gray-600">
+                <i data-lucide="heart-pulse" class="w-4 h-4"></i>
+                <span>Primary Condition:</span>
+                <span class="font-medium text-gray-800">Hypertension</span>
+              </div>
+              <div class="flex items-center gap-2 text-gray-600">
+                <i data-lucide="allergy" class="w-4 h-4"></i>
+                <span>Allergies:</span>
+                <span class="font-medium text-gray-800">Penicillin</span>
+              </div>
+              <div class="flex items-center gap-2 text-gray-600">
+                <i data-lucide="syringe" class="w-4 h-4"></i>
+                <span>Immunizations:</span>
+                <span class="font-medium text-gray-800"
+                  >Tetanus (2023), Flu (2024)</span
+                >
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex items-center gap-2 text-gray-600">
+                <i data-lucide="activity" class="w-4 h-4"></i>
+                <span>Last Visit:</span>
+                <span class="font-medium text-gray-800">Sep 12, 2025</span>
+              </div>
+              <div class="flex items-center gap-2 text-gray-600">
+                <i data-lucide="stethoscope" class="w-4 h-4"></i>
+                <span>Primary Physician:</span>
+                <span class="font-medium text-gray-800"
+                  >Dr. Sarah Johnson (Cardiology)</span
+                >
+              </div>
+              <div class="flex items-center gap-2 text-gray-600">
+                <i data-lucide="notebook-pen" class="w-4 h-4"></i>
+                <span>Notes:</span>
+                <span class="font-medium text-gray-800"
+                  >Lifestyle changes advised; monitor BP weekly.</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+          
+      </section>
+
+      <section data-tab="appointments" class="tab-panel hidden">
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 ">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2 font-semibold text-gray-800">
+              <i data-lucide="calendar" class="w-5 h-5"></i>
+              Appointments
+            </div>
+            <a
+              href="/appointments/new?patient=CC-10293"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-green-600 text-white text-sm "
+            >
+              <i data-lucide="plus" class="w-4 h-4"></i> New
+            </a>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-left text-gray-500 border-b">
+                  <th class="py-2 pr-4">Date</th>
+                  <th class="py-2 pr-4">Doctor</th>
+                  <th class="py-2 pr-4">Department</th>
+                  <th class="py-2 pr-4">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                <tr>
+                  <td class="py-3 pr-4">Sep 12, 2025 — 10:30</td>
+                  <td class="py-3 pr-4">Dr. Sarah Johnson</td>
+                  <td class="py-3 pr-4">Cardiology</td>
+                  <td class="py-3 pr-4">
+                    <span
+                      class="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700"
+                      >Completed</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td class="py-3 pr-4">Oct 05, 2025 — 09:00</td>
+                  <td class="py-3 pr-4">Dr. Peter Mills</td>
+                  <td class="py-3 pr-4">General Medicine</td>
+                  <td class="py-3 pr-4">
+                    <span
+                      class="px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-700"
+                      >Upcoming</span
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section data-tab="prescriptions" class="tab-panel hidden">
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 ">
+          <div
+            class="flex items-center gap-2 mb-4 font-semibold text-gray-800"
+          >
+            <i data-lucide="pill" class="w-5 h-5"></i>
+            Prescriptions
+          </div>
+          <ul class="space-y-3 text-sm">
+            <li class="flex items-start justify-between">
+              <div>
+                <div class="font-medium text-gray-800">Lisinopril 10mg</div>
+                <div class="text-gray-500">Once daily — Hypertension</div>
+              </div>
+              <span
+                class="px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700"
+                >Refills: 2</span
+              >
+            </li>
+            <li class="flex items-start justify-between">
+              <div>
+                <div class="font-medium text-gray-800">Atorvastatin 20mg</div>
+                <div class="text-gray-500">Nightly — Dyslipidemia</div>
+              </div>
+              <span
+                class="px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-700"
+                >Refills: 0</span
+              >
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section data-tab="bills" class="tab-panel hidden">
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 ">
+          <div
+            class="flex items-center gap-2 mb-4 font-semibold text-gray-800"
+          >
+            <i data-lucide="receipt" class="w-5 h-5"></i>
+            Billing
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-left text-gray-500 border-b">
+                  <th class="py-2 pr-4">Invoice</th>
+                  <th class="py-2 pr-4">Date</th>
+                  <th class="py-2 pr-4">Amount</th>
+                  <th class="py-2 pr-4">Status</th>
+                  <th class="py-2 pr-4">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                <tr>
+                  <td class="py-3 pr-4">INV-2025-0198</td>
+                  <td class="py-3 pr-4">Sep 12, 2025</td>
+                  <td class="py-3 pr-4">$80.00</td>
+                  <td class="py-3 pr-4">
+                    <span
+                      class="px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700"
+                      >Paid</span
+                    >
+                  </td>
+                  <td class="py-3 pr-4">
+                    <a href="#" class="text-green-700 "
+                      >View</a
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td class="py-3 pr-4">INV-2025-0241</td>
+                  <td class="py-3 pr-4">Oct 05, 2025</td>
+                  <td class="py-3 pr-4">$45.00</td>
+                  <td class="py-3 pr-4">
+                    <span
+                      class="px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-700"
+                      >Pending</span
+                    >
+                  </td>
+                  <td class="py-3 pr-4">
+                    <a href="#" class="text-green-700 ">Pay</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section data-tab="labs" class="tab-panel hidden">
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 ">
+          <div
+            class="flex items-center gap-2 mb-4 font-semibold text-gray-800"
+          >
+            <i data-lucide="flask-conical" class="w-5 h-5"></i>
+            Lab Results
+          </div>
+          <ul class="space-y-3 text-sm">
+            <li class="flex items-center justify-between">
+              <div>
+                <div class="font-medium text-gray-800">CBC</div>
+                <div class="text-gray-500">Normal</div>
+              </div>
+            
+            </li>
+            <li class="flex items-center justify-between">
+              <div>
+                <div class="font-medium text-gray-800">Lipid Panel</div>
+                <div class="text-gray-500">LDL borderline high</div>
+              </div>
+          
+            </li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+
+  </body>
+</html>

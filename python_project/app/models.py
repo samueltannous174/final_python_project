@@ -5,8 +5,6 @@ import re
 import bcrypt
 from django.db.models import Q
 
-
-
 EMAIL_RE = re.compile(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
 PHONE_RE = re.compile(r'^\+?[0-9]{7,15}$')
 BLOOD_TYPES = {'A+','A-','B+','B-','AB+','AB-','O+','O-'}
@@ -106,6 +104,7 @@ class PatientManager(models.Manager):
         age_raw = postData.get('age')
         blood_type = (postData.get('blood_type') or '').strip().upper()
         blood_pressure = (postData.get('blood_pressure') or '').strip()
+        print(blood_pressure)
 
         if not user_id:
             errors['user'] = 'User is required.'
@@ -202,13 +201,6 @@ class MedicalCase(models.Model):
     def __str__(self):
         return f"{self.title} ({self.patient.user.last_name})"
 
-
-
-
-import bcrypt
-from django.db import transaction
-from .models import User, Doctor, Patient
-
 def create_user_with_role(data,hashed):
     role = data.get('role', '').lower().strip()
 
@@ -247,7 +239,6 @@ def login_user(data):
     password = data.get('password', '').strip()
 
     user = User.objects.filter(email__iexact=email).first()
-
     if not user:
         return None
 
@@ -262,8 +253,6 @@ def login_user(data):
 
 
 def  get_all_doctors():
-    
-    
     return Doctor.objects.all()
 
 
@@ -278,3 +267,13 @@ def filter_doctors(query: str = ""):
         )
 
     return doctors
+
+def get_user(id):
+    return User.objects.get(id = id)
+
+
+def get_all_patients(doctor_id):
+    user = get_user(doctor_id)
+    doctor = user.doctor_profile
+    app = doctor.appointments.all()
+    return app
