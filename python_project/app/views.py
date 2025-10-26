@@ -80,11 +80,17 @@ def showLogin(request):
 
 
 def RegisterUser(request):
-    print(request.POST)
+
     if request.method == 'POST':
+        print(request.POST)
+
         errors = models.User.objects.register_validator(request.POST)
-        if request.POST['role'] == 'patient':
-                errors.update(models.Patient.objects.create_validator(request.POST))
+
+        role = (request.POST.get('role') or '').strip().lower()
+        if role == 'patient':
+            errors.update(models.Patient.objects.create_validator(request.POST))
+        elif role == 'doctor':
+            errors.update(models.Doctor.objects.create_validator(request.POST))  
 
         if errors:
             for msg in errors.values():
@@ -119,14 +125,25 @@ def loginSubmit(request):
     return redirect('/')
 
 
+from django.shortcuts import render
+from django.db.models import Q
+from .models import Doctor
+
 def filterDoctors(request):
-    query = ""
-    if request.method == "POST":
-        query = request.POST.get("q", "").strip()
-
-    doctors = models.filter_doctors(query)
-    return render(request, "doctors.html", {"doctors": doctors, "query": query})
-
+    q = (request.POST.get('q') or '').strip()
+    doctors = (
+        Doctor.objects.select_related('user')
+        .filter(
+            Q(user__first_name__icontains=q)
+            | Q(user__last_name__icontains=q)
+            | Q(specialization__icontains=q)
+        )
+        if q else Doctor.objects.select_related('user').all()
+    )
+    if request.headers.get('HX-Request'):
+        return render(request, "partials/_doctor_cards.html", {"doctors": doctors})
+    
+    return render(request, "doctors.html", {"doctors": doctors})
 
 
 

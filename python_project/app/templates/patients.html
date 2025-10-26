@@ -68,11 +68,11 @@
                     </div>
                 </div>
                 <form class="mt-5 flex items-center justify-between" action="/patient/{{appointment.patient.user.id}}" method="get">
-                        <input type="submit" value="Show Details" class="mx-auto inline-flex items-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                        <input type="submit" value="Show Details" class="mx-auto inline-flex items-center rounded-xl bg-[#51A2FE] px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
                 </form>
             </div>
             {% empty %}
-            <div class="col-span-full text-center text-gray-600">No doctors found.</div>
+            <div class="col-span-full text-center text-gray-600">No patients found.</div>
             {% endfor %}
         </div>
     </div>

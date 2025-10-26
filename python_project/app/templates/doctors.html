@@ -6,9 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Doctors Directory</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 </head>
 
 <body class="bg-blue-50 text-gray-800">
+
   <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white">
     <h1 class="text-2xl font-semibold">CareClinic</h1>
     {% if user.role == 'patient' %}
@@ -21,11 +23,11 @@
     <div class="flex items-center gap-10 text-lg">
       <a href="/home" class="flex items-center gap-2 px-4 py-2 rounded-xl">Home</a>
       <a href="/patients" class="flex items-center gap-2">Patients</a>
-      <a href="/history" class="flex items-center gap-2">History</a>
+      <a href="/firstaid/voice" class="flex items-center gap-2">History</a>
     </div>
     {% endif %}
     <div class="flex items-center gap-20 text-lg font-semibold">
-      <p class="text-amber-500">{{user.first_name}}</p>
+      <p class="text-amber-500">{{ user.first_name }}</p>
       {% if 'id' in request.session %}
       <a href="/logout" class="hover:underline">Logout</a>
       {% else %}
@@ -35,66 +37,43 @@
   </nav>
 
   <div class="mx-auto max-w-7xl p-6">
-    <form action="/filter_doctors/" method="post" class="flex items-center gap-3">
+    <form
+      action="/filter_doctors/"
+      method="post"
+      class="flex items-center gap-3"
+      hx-post="/filter_doctors/"
+      hx-trigger="input delay:300ms, submit"
+      hx-target="#doctor-grid"
+      hx-swap="innerHTML"
+    >
       {% csrf_token %}
       <div class="flex-1">
         <div class="relative">
-          <input name="q" type="text" placeholder="Search doctors by name or specialty"
+          <input
+            name="q"
+            type="text"
+            placeholder="Search doctors by name or specialty"
             value="{{ request.POST.q|default:'' }}"
-            class="w-full rounded-full border border-gray-200 bg-white py-3 pl-4 pr-4 text-[15px] outline-none" />
+            class="w-full rounded-full border border-gray-200 bg-white py-3 pl-4 pr-4 text-[15px] outline-none"
+          />
         </div>
       </div>
-      <button type="submit"
-        class="items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
-        Filter
-      </button>
     </form>
 
-    <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {% for doctor in doctors %}
-      {% if doctor and doctor.user %}
-      <div class="rounded-2xl border border-gray-200 bg-white p-6">
-        <div class="flex items-start gap-4">
-          <div
-            class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-600">
-            {{ doctor.user.first_name|first|upper }}{{ doctor.user.last_name|first|upper }}
-          </div>
-          <div class="flex-1">
-            <h3 class="text-lg font-semibold">
-              Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}
-            </h3>
-            <p class="text-sm text-gray-500">
-              {{ doctor.specialization }}
-            </p>
-          </div>
-        </div>
-
-        <div class="mt-5 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-          <div class="text-gray-500">Experience:</div>
-          <div class="text-right">
-            {{ doctor.years_of_experience }} year{{ doctor.years_of_experience|pluralize }}
-          </div>
-        </div>
-
-        <div class="mt-5 flex items-center justify-between">
-          <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-            Available
-          </span>
-
-          <a href="/appointments?doctor={{ doctor.id }}"
-            class="inline-flex items-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-            Make appointment
-          </a>
-          {# If you have a named URL like 'appointments', prefer: #}
-          {# <a href="{% url 'appointments' %}?doctor={{ doctor.id }}" ...>Make appointment</a> #}
-        </div>
-      </div>
-      {% endif %}
-      {% empty %}
-      <div class="col-span-full text-center text-gray-600">No doctors found.</div>
-      {% endfor %}
+    <div id="doctor-grid" class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {% include "partials/_doctor_cards.html" with doctors=doctors %}
     </div>
   </div>
-</body>
 
+  <script>
+    document.body.addEventListener("htmx:configRequest", (evt) => {
+      const getCookie = (name) => {
+        const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+        return match ? decodeURIComponent(match[2]) : null;
+      };
+      const csrfToken = getCookie("csrftoken");
+      if (csrfToken) evt.detail.headers["X-CSRFToken"] = csrfToken;
+    });
+  </script>
+</body>
 </html>

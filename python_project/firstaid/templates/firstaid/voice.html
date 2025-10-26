@@ -5,8 +5,37 @@
   <title>First-Aid Voice Help (High Accuracy)</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-blue-50 flex items-center justify-center min-h-screen p-6">
-  <div class="w-full max-w-md bg-white rounded-2xl shadow p-6 text-center">
+
+<body class="bg-blue-50     flex flex-col  w-full ">
+  <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white">
+    <h1 class="text-2xl font-semibold">CareClinic</h1>
+
+    {% if user.role == 'patient' %}
+    <div class="flex items-center gap-10 text-lg">
+      <a href="/home" class="flex items-center gap-2 px-4 py-2 rounded-xl">Home</a>
+      <a href="/doctors" class="flex items-center gap-2">Doctors</a>
+      <a href="/firstaid/identify" class="flex items-center gap-2">Identify Medicens</a>
+      <a href="/firstaid/voice" class="flex items-center gap-2">Chatbot</a>
+    </div>
+    {% else %}
+    <div class="flex items-center gap-10 text-lg">
+      <a href="/home" class="flex items-center gap-2 px-4 py-2 rounded-xl">Home</a>
+      <a href="/patients" class="flex items-center gap-2">Patients</a>
+      <a href="/firstaid/identify" class="flex items-center gap-2">Identify Medicens</a>
+      <a href="/firstaid/voice" class="flex items-center gap-2">Chatbot</a>
+    </div>
+    {% endif %}
+
+    <div class="flex items-center gap-20 text-lg font-semibold">
+      <p class="text-amber-500">{{user.first_name}}</p>
+      {% if 'id' in request.session %}
+      <a href="/logout" class="hover:underline">Logout</a>
+      {% else %}
+      <a href="/login" class="hover:underline">Login</a>
+      {% endif %}
+    </div>
+  </nav>
+  <div class="w-full max-w-md bg-white rounded-2xl shadow p-6 text-center mx-auto  mt-10  ">
     <h1 class="text-xl font-semibold">First-Aid Voice Help</h1>
     <p id="status" class="mt-2 text-sm text-gray-600">Hold the mic and speak…</p>
 
@@ -115,8 +144,6 @@
       const bufferSize = 2048;
       processor = audioCtx.createScriptProcessor(bufferSize, 1, 1);
       dcBlock.connect(processor);
-      // Avoid feeding mic to speakers to prevent feedback during recording:
-      // processor.connect(audioCtx.destination);
 
       processor.onaudioprocess = (e) => {
         if (!isRecording) return;
@@ -217,7 +244,6 @@
       const fd = new FormData();
       fd.append("audio", wavBlob, "recording.wav");
 
-      // ---- Robust server response handling (JSON, audio-only, alt keys) ----
       try {
         const res = await fetch(POST_URL_JSON, {
           method: "POST",
@@ -268,7 +294,6 @@
           }
 
         } else if (ctype.startsWith("audio/")) {
-          // Audio-only response; try to surface transcript from a header if present.
           const buf = await res.arrayBuffer();
           const url = URL.createObjectURL(new Blob([buf], { type: ctype }));
           replyEl.src = url;
@@ -285,7 +310,6 @@
         console.error(err);
         statusEl.textContent = "Error. Try again.";
       }
-      // ----------------------------------------------------------------------
     }
 
     function maybeStop() { if (isRecording) stopRec(); }

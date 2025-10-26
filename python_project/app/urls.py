@@ -18,4 +18,5 @@ urlpatterns = [
     path ('filter_doctors/', views.filterDoctors),
     path('patients/', views.showPatients),
     path('patient/<int:id>/', views.showPatientDetails)
+    
 ]

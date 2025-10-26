@@ -19,7 +19,7 @@ class UserManager(models.Manager):
         first = (postData.get('first_name') or '').strip()
         last = (postData.get('last_name') or '').strip()
         pw = postData.get('password') or ''
-        cpw = postData.get('confirmPassword') or ''
+        cpw = postData.get('confirm') or ''
         role = (postData.get('role') or '').strip().lower()
         phone = (postData.get('phone') or '').strip()
 
@@ -37,6 +37,12 @@ class UserManager(models.Manager):
 
         if phone and not PHONE_RE.match(phone):
             errors['phone'] = "Phone must be 7–15 digits, optionally starting with '+'."
+        
+        if len(pw) < 8:
+            errors['password'] = 'Password must be at least 8 characters.'
+
+        if pw != cpw:
+            errors['confirmPassword'] = 'Passwords do not match.'
 
         return errors
 
@@ -70,17 +76,20 @@ class DoctorManager(models.Manager):
     
         errors = {}
 
-        user_id = postData.get('user_id')
         specialization = (postData.get('specialization') or '').strip()
         yoe_raw = postData.get('years_of_experience')
-        availability = (postData.get('availability') or postData.get('availability') or '').strip()
+        bio = (postData.get('bio') or '').strip()
 
-        user = None
-        if not user_id:
-            errors['user'] = 'User is required.'
+        
+
 
         if not specialization:
             errors['specialization'] = 'Specialization is required.'
+        if specialization not in ('Dermatology', 'General Surgery', 'Neurology', 'Allergist'):
+            errors['specialization'] = 'Specialization must be one of A, B, C, D, or E.'
+
+        if not bio or len(bio) < 10:
+            errors['bio'] = 'Bio must be at least 10 characters.'
 
         try:
             yoe = int(yoe_raw)
@@ -89,8 +98,6 @@ class DoctorManager(models.Manager):
         except (TypeError, ValueError):
             errors['years_of_experience'] = 'Years of experience must be an integer.'
 
-        if not availability:
-            errors['availability'] = 'availability is required.'
 
         return errors
     
@@ -100,14 +107,11 @@ class PatientManager(models.Manager):
 
         errors = {}
 
-        user_id = postData.get('user_id')
         age_raw = postData.get('age')
         blood_type = (postData.get('blood_type') or '').strip().upper()
         blood_pressure = (postData.get('blood_pressure') or '').strip()
         print(blood_pressure)
 
-        if not user_id:
-            errors['user'] = 'User is required.'
         try:
             age = int(age_raw)
             if age < 1 or age > 120:
@@ -122,11 +126,6 @@ class PatientManager(models.Manager):
             errors['blood_pressure'] = "Blood pressure must look like '120/80'."
 
         return errors
-
-
-
-
-
 
 
 
@@ -203,7 +202,7 @@ class MedicalCase(models.Model):
 
 def create_user_with_role(data,hashed):
     role = data.get('role', '').lower().strip()
-
+    
     user = User.objects.create(
             email=data['email'].strip().lower(),
             first_name=data['first_name'].strip(),
