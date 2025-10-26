@@ -24,10 +24,16 @@ def showRegisterDoctor(request):
     return render(request,'register_doctor.html')
 
 def showPatientDetails(request, id):
-    user = models.get_user(id)
+    print(id)
+    print(request.GET['doctor_id'])
+    doctor = models.get_user(request.GET['doctor_id'])
+    patient = models.get_user(id)
+    cases = models.get_all_patient_cases(id)
     context = {
-        'user': user,
-        'patient': user.patient_profile
+        'user': doctor,
+        'patient': patient,
+        'details': patient.patient_profile,
+        'cases': cases
     }
     return render(request, 'patient_details.html', context)
 
@@ -44,7 +50,7 @@ def showPatients(request):
     if 'id' not in request.session:
         return redirect('/login')
     context = {
-        'appointments': models.get_all_patients(request.session['id']),
+        'patients': models.get_all_patients(request.session['id']),
         'user': user_details(request.session['id'])
     }
     return render(request, 'patients.html', context)
@@ -108,7 +114,7 @@ def loginSubmit(request):
         if errors:
             for msg in errors.values():
                 messages.error(request, msg, extra_tags='login')
-            return redirect('/')
+            return redirect('/login')
         
         user = models.login_user(request.POST)
         request.session['id'] = user.id
@@ -257,4 +263,16 @@ def showAppoitments(request):
     }
     return render(request, "appointment.html", context)
 
-
+def addCase(request):
+    if request.method == 'GET':
+        return redirect(f'/patient/{request.POST['patient_id']}')
+    if request.method == 'POST':
+        print(request.POST)
+        errors = models.MedicalCase.objects.case_validator(request.POST)
+        if errors:
+            for msg in errors.values():
+                messages.error(request, msg)
+            print(f"request.POST['patient_id'] = {request.POST['patient_id']}")
+            return redirect(f'/patient/{request.POST['patient_id']}')
+    case = models.add_case(request.POST)
+    return redirect(f'/patient/{request.POST['patient_id']}')
