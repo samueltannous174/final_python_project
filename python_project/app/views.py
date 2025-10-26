@@ -101,7 +101,7 @@ def RegisterUser(request): #post
         request.session['id'] = user.id
         return redirect('/home')
 
-    return redirect('/register_user')
+    return redirect('/reqister')
 
 
 def loginSubmit(request): #post
