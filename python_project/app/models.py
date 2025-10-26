@@ -123,9 +123,20 @@ class PatientManager(models.Manager):
         return errors
 
 
-
-
-
+class MedicalCaseManager(models.Manager):
+    def case_validator(self, post):
+        errors = {}
+        doctor_id = post['doctor_id']
+        patient_id = post['patient_id']
+        if not doctor_id or not patient_id:
+            errors['user'] = 'User and Patient is required.'
+        else:
+            if post['symptoms'] == '':
+                errors['symptoms'] = "Symptoms should not be empty"
+            if post['title'] == '':
+                errors['title'] = "Tilte should not be empty"
+        
+        return errors
 
 
 
@@ -143,6 +154,8 @@ class User(models.Model):
     phone = models.CharField(max_length=15, blank=True, null=True)
     photo = models.TextField(blank=True, null=True)
     objects = UserManager()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.role})"
@@ -156,12 +169,12 @@ class Doctor(models.Model):
     availability = models.CharField(max_length=255, default='Available')
     certificate = models.TextField(blank=True, null=True)
     objects = DoctorManager()
-
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
     def __str__(self):
         return f"Dr. {self.user.first_name} {self.user.last_name} - {self.specialization}"
-
 
 
 class Patient(models.Model):
@@ -170,6 +183,8 @@ class Patient(models.Model):
     blood_type = models.CharField(max_length=3)
     blood_pressure = models.CharField(max_length=20, blank=True, null=True)
     objects = PatientManager()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.user.first_name
@@ -182,6 +197,8 @@ class Appointment(models.Model):
     date = models.DateTimeField()
     reason = models.CharField(max_length=255)
     is_finished = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Appointment with Dr. {self.doctor.user.last_name} and {self.patient.user.last_name} on {self.date}"
@@ -196,6 +213,9 @@ class MedicalCase(models.Model):
     diagnosis = models.TextField(blank=True, null=True)
     treatment = models.TextField(blank=True, null=True)
     reason = models.TextField(blank=True, null=True)
+    objects = MedicalCaseManager()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.title} ({self.patient.user.last_name})"
@@ -274,5 +294,15 @@ def get_user(id):
 def get_all_patients(doctor_id):
     user = get_user(doctor_id)
     doctor = user.doctor_profile
-    app = doctor.appointments.all()
-    return app
+    patients = Patient.objects.filter(appointments__doctor = doctor)
+    return patients
+
+def add_case(post):
+    doctor = get_user(post['doctor_id'])
+    patient = get_user(post['patient_id'])  
+    return MedicalCase.objects.create(title = post['title'], symptoms = post['symptoms'], diagnosis = post['diagnosis'], treatment = post['treatment'], reason = post['reason'], doctor = doctor.doctor_profile, patient = patient.patient_profile)
+
+def get_all_patient_cases(user_id):
+    user = get_user(user_id)
+    patient = user.patient_profile
+    return patient.medical_cases.all()
