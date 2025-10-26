@@ -1,68 +1,186 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
-    {% load static %} 
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediCare</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
-<body class="bg-blue-50">
-    <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white">
-  <h1 class="text-2xl font-semibold">CareClinic</h1>
+<body class="antialiased text-slate-800 bg-white">
+  <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white">
+    <h1 class="text-2xl font-semibold">CareClinic</h1>
 
-  <div class="flex items-center gap-10 text-lg">
-  
-    <a href="/home" class="flex items-center gap-2  px-4 py-2 rounded-xl">
-      Home
-    </a>
+    {% if user.role == 'patient' %}
+    <div class="flex items-center gap-10 text-lg">
+      <a href="/home" class="flex items-center gap-2 px-4 py-2 rounded-xl">Home</a>
+      <a href="/doctors" class="flex items-center gap-2">Doctors</a>
+      <a href="/history" class="flex items-center gap-2">History</a>
+    </div>
+    {% else %}
+    <div class="flex items-center gap-10 text-lg">
+      <a href="/home" class="flex items-center gap-2 px-4 py-2 rounded-xl">Home</a>
+      <a href="/patients" class="flex items-center gap-2">Patients</a>
+      <a href="/history" class="flex items-center gap-2">History</a>
+    </div>
+    {% endif %}
 
-    <a href="/appointments" class="flex items-center gap-2 ">
-      Appointments
-    </a>
+    <div class="flex items-center gap-20 text-lg font-semibold">
+      <p class="text-amber-500">{{user.first_name}}</p>
+      {% if 'id' in request.session %}
+      <a href="/logout" class="hover:underline">Logout</a>
+      {% else %}
+      <a href="/login" class="hover:underline">Login</a>
+      {% endif %}
+    </div>
+  </nav>
 
-    <a href="/doctors" class="flex items-center gap-2 ">
-      Doctors
-    </a>
-
-    <a href="/history" class="flex items-center gap-2 ">
-      History
-    </a>
-  </div>
-
-  {% if request.session.name %}
-  <div class="flex items-center gap-8 text-lg font-semibold">
-    <p class="text-amber-300">Welcome, {{request.session.name}}</p>
-    <a href="/logout" class="hover:underline">Logout</a>
-  </div>
-  {% else %}
-  <div class="flex items-center gap-8 text-lg font-semibold">
-    <a href="/login" class="hover:underline">Login</a>
-  </div>
-  {% endif %}
-</nav>
-
-    
-    <div class="flex w-400 h-130 mx-auto mt-20 bg-gray-300 rounded-[1.3em]">
-        <div class="w-200">
-            <h1 class="mt-10 ml-6 text-3xl">Welcome to Medical Clinc Application</h1>
-            <h2 class="mt-6 ml-6 text-2xl">About Us</h2>
-            <p class="mt-3 ml-7 text-[0.9em]">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Fugit tempore, consequatur dignissimos aut reiciendis sequi eius necessitatibus nostrum fugiat, inventore itaque velit dolore repudiandae veritatis error ex quos officia animi. Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus eos officia in eaque accusantium saepe repudiandae odio deserunt tempora. Labore temporibus, commodi reiciendis pariatur sint voluptates itaque doloribus quaerat tenetur!</p>
-            <div class="mt-20 ml-6">
-                <h2 class="text-2xl">Contact Us</h2>
-                <div class="mt-6 ml-3">
-                    <p class="text-[1.2em]">Phone: <span class="text-blue-500">77676765767</span></p>
-                    <p class="text-[1.2em]">Email: <span class="text-blue-500">dsfdfdf@fgfg.com</span></p>
-                </div>
-            </div>
+  <main>
+    <section class="bg-[#475569]  text-white py-20 md:py-28">
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+          <h1 class="text-4xl md:text-6xl font-bold mb-6">
+            Your Health, Our Priority
+          </h1>
+          <p class="text-lg md:text-xl mb-8 ">
+            Connect with trusted healthcare professionals and get instant
+            first-aid guidance when you need it most.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          </div>
         </div>
-        <img class="rounded-r-[1.3em] ml-5" src="{% static 'european-luxury-medical-clinic-brand-new-empty-33655077.jpg' %}" alt="">
-    </div>
-    <div class="flex w-100 mt-15 mx-auto py-20 px-10 justify-between">
-        <a href="/login" class="border bg-green-500 text-gray-100 px-8 py-2 text-[1.2em] rounded-2xl ">Login</a>
-        <a href="/register_doctor" class="border bg-yellow-500 text-gray-100 px-8 py-2 text-[1.2em] rounded-2xl">Signup</a>
-    </div>
+      </div>
+    </section>
+
+    <section class="py-16 md:py-24 bg-gray-50">
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold mb-3">
+            Why Choose MediCare?
+          </h2>
+          <p class="text-slate-500 text-lg max-w-2xl mx-auto">
+            We're committed to making healthcare accessible, reliable, and
+            convenient for everyone.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <article class="bg-white border border-gray-200 rounded-xl p-6 ">
+            <div class="h-12 w-12 rounded-lg bg-gray-50 flex items-center justify-center mb-4">
+              <i data-lucide="users" class="h-6 w-6 text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-1">Expert Doctors</h3>
+            <p class="text-gray-500">
+              Connect with certified healthcare professionals across various
+              specializations.
+            </p>
+          </article>
+
+          <article class="bg-white border border-gray-200 rounded-xl p-6 ">
+            <div class="h-12 w-12 rounded-lg bg-blue-50 flex items-center justify-center mb-4">
+              <i data-lucide="calendar" class="h-6 w-6 text-blue-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-1">Easy Scheduling</h3>
+            <p class="text-slate-500">
+              Book appointments seamlessly and manage your healthcare schedule
+              effortlessly.
+            </p>
+          </article>
+
+          <article class="bg-white border border-gray-200 rounded-xl p-6 ">
+            <div class="h-12 w-12 rounded-lg bg-green-50 flex items-center justify-center mb-4">
+              <i data-lucide="message-square" class="h-6 w-6 text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-1">AI First Aid</h3>
+            <p class="text-slate-500">
+              Get instant, step-by-step first-aid guidance from our AI
+              assistant powered by trusted sources.
+            </p>
+          </article>
+
+          <article class="bg-white border border-gray-200 rounded-xl p-6 ">
+            <div class="h-12 w-12 rounded-lg bg-yellow-50 flex items-center justify-center mb-4">
+              <i data-lucide="shield" class="h-6 w-6 text-yellow-600"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-1">Secure & Private</h3>
+            <p class="text-slate-500">
+              Your health data is encrypted and protected with
+              industry-leading security standards.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+
+
+    <section class="py-16 bg-gray-50 border-y border-gray-200">
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div>
+            <div class="text-4xl font-bold text-gray-600 mb-1">500+</div>
+            <div class="text-gray-500">Expert Doctors</div>
+          </div>
+          <div>
+            <div class="text-4xl font-bold text-blue-600 mb-1">10K+</div>
+            <div class="text-gray-500">Happy Patients</div>
+          </div>
+          <div>
+            <div class="text-4xl font-bold text-green-600 mb-1">50+</div>
+            <div class="text-gray-500">Specializations</div>
+          </div>
+          <div>
+            <div class="text-4xl font-bold text-yellow-600 mb-1">24/7</div>
+            <div class="text-gray-500">Support Available</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 md:py-24">
+      {% if 'id' in request.session %}
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="rounded-2xl bg-gray-800 text-white ">
+          <div class="p-8 md:p-12 text-center">
+            <i data-lucide="heart" class="h-16 w-16 mx-auto mb-6 "></i>
+            <h2 class="text-3xl md:text-4xl font-bold mb-3">
+              Leave your page
+            </h2>
+            <p class="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
+              Thank you for using our service
+            </p>
+            <a href="/logout"
+              class="inline-flex items-center justify-center h-12 px-6 rounded-lg bg-white text-gray-900 font-semibold ">Logout</a>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="rounded-2xl bg-gray-800 text-white ">
+          <div class="p-8 md:p-12 text-center">
+            <i data-lucide="heart" class="h-16 w-16 mx-auto mb-6 "></i>
+            <h2 class="text-3xl md:text-4xl font-bold mb-3">
+              Ready to Start Your Healthcare Journey?
+            </h2>
+            <p class="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
+              Join thousands of patients who trust MediCare for their
+              healthcare needs.
+            </p>
+            <div class="gap-10 flex justify-center items-center">
+              <a href="/login"
+                class="inline-flex items-center justify-center h-12 px-6 rounded-lg bg-white text-gray-900 font-semibold ">Login</a>
+              <p>OR</p>
+              <a href="/register"
+                class="inline-flex items-center justify-center h-12 px-6 rounded-lg bg-white text-gray-900 font-semibold ">Register</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </section>
+  </main>
 </body>
+
 </html>
