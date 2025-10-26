@@ -85,7 +85,7 @@ def showLogin(request):
     return render(request,'login.html')
 
 
-def RegisterUser(request):
+def RegisterUser(request): #post
     print(request.POST)
     if request.method == 'POST':
         errors = models.User.objects.register_validator(request.POST)
@@ -104,10 +104,10 @@ def RegisterUser(request):
         request.session['id'] = user.id
         return redirect('/home')
 
-    return redirect('/')
+    return redirect('/register_user')
 
 
-def loginSubmit(request):
+def loginSubmit(request): #post
     print(request.POST)
     if request.method == 'POST':
         errors = models.User.objects.login_validator(request.POST)
@@ -136,7 +136,7 @@ def filterDoctors(request):
 
 
 
-def logout(request):
+def logout(request): #post
     request.session.flush()
     messages.success(request, "You have been logged out.", extra_tags='login')
     return redirect('/')
@@ -263,7 +263,7 @@ def showAppoitments(request):
     }
     return render(request, "appointment.html", context)
 
-def addCase(request):
+def addCase(request): #post
     if request.method == 'GET':
         return redirect(f'/patient/{request.POST['patient_id']}')
     if request.method == 'POST':
