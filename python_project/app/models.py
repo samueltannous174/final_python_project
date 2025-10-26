@@ -104,6 +104,7 @@ class PatientManager(models.Manager):
         age_raw = postData.get('age')
         blood_type = (postData.get('blood_type') or '').strip().upper()
         blood_pressure = (postData.get('blood_pressure') or '').strip()
+        print(blood_pressure)
 
         if not user_id:
             errors['user'] = 'User is required.'

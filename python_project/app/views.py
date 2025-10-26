@@ -83,6 +83,9 @@ def RegisterUser(request):
     print(request.POST)
     if request.method == 'POST':
         errors = models.User.objects.register_validator(request.POST)
+        if request.POST['role'] == 'patient':
+                errors.update(models.Patient.objects.create_validator(request.POST))
+
         if errors:
             for msg in errors.values():
                 messages.error(request, msg, extra_tags='login')
