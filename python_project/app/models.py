@@ -296,7 +296,7 @@ def get_user(id):
 def get_all_patients(doctor_id):
     user = get_user(doctor_id)
     doctor = user.doctor_profile
-    patients = Patient.objects.filter(appointments__doctor = doctor)
+    patients = Patient.objects.filter(appointments__doctor = doctor).distinct()
     return patients
 
 def add_case(post):
