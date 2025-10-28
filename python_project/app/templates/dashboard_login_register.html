@@ -17,13 +17,15 @@
     <div class="flex items-center gap-10 text-lg">
       <a href="/home" class="flex items-center gap-2 px-4 py-2 rounded-xl">Home</a>
       <a href="/doctors" class="flex items-center gap-2">Doctors</a>
-      <a href="/history" class="flex items-center gap-2">History</a>
+      <a href="/firstaid/identify" class="flex items-center gap-2">Identify Medicens</a>
+      <a href="/firstaid/voice" class="flex items-center gap-2">Chatbot</a>
     </div>
     {% else %}
     <div class="flex items-center gap-10 text-lg">
       <a href="/home" class="flex items-center gap-2 px-4 py-2 rounded-xl">Home</a>
       <a href="/patients" class="flex items-center gap-2">Patients</a>
-      <a href="/history" class="flex items-center gap-2">History</a>
+      <a href="/firstaid/identify" class="flex items-center gap-2">Identify Medicens</a>
+      <a href="/firstaid/voice" class="flex items-center gap-2">Chatbot</a>
     </div>
     {% endif %}
 
@@ -67,7 +69,7 @@
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <article class="bg-white border border-gray-200 rounded-xl p-6 ">
+          <article class="bg-gray-50 border border-gray-200 rounded-xl p-6 ">
             <div class="h-12 w-12 rounded-lg bg-gray-50 flex items-center justify-center mb-4">
               <i data-lucide="users" class="h-6 w-6 text-green-600"></i>
             </div>
@@ -78,9 +80,10 @@
             </p>
           </article>
 
-          <article class="bg-white border border-gray-200 rounded-xl p-6 ">
+          <article class="bg-blue-50 border border-gray-200 rounded-xl p-6 ">
             <div class="h-12 w-12 rounded-lg bg-blue-50 flex items-center justify-center mb-4">
               <i data-lucide="calendar" class="h-6 w-6 text-blue-600"></i>
+              
             </div>
             <h3 class="text-lg font-semibold mb-1">Easy Scheduling</h3>
             <p class="text-slate-500">
@@ -89,7 +92,7 @@
             </p>
           </article>
 
-          <article class="bg-white border border-gray-200 rounded-xl p-6 ">
+          <article class="bg-green-50 border border-gray-200 rounded-xl p-6 ">
             <div class="h-12 w-12 rounded-lg bg-green-50 flex items-center justify-center mb-4">
               <i data-lucide="message-square" class="h-6 w-6 text-green-600"></i>
             </div>
@@ -100,7 +103,7 @@
             </p>
           </article>
 
-          <article class="bg-white border border-gray-200 rounded-xl p-6 ">
+          <article class="bg-yellow-50 border border-gray-200 rounded-xl p-6 ">
             <div class="h-12 w-12 rounded-lg bg-yellow-50 flex items-center justify-center mb-4">
               <i data-lucide="shield" class="h-6 w-6 text-yellow-600"></i>
             </div>

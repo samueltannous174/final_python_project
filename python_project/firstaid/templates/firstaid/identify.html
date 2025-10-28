@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>AI Medicine Identifier</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center  ">
+    <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white w-full">
+    <h1 class="text-2xl font-semibold">CareClinic</h1>
+
+    {% if user.role == 'patient' %}
+    <div class="flex items-center gap-10 text-lg">
+      <a href="/home" class="flex items-center gap-2 px-4 py-2 rounded-xl">Home</a>
+      <a href="/doctors" class="flex items-center gap-2">Doctors</a>
+      <a href="/firstaid/identify" class="flex items-center gap-2">Identify Medicens</a>
+      <a href="/firstaid/voice" class="flex items-center gap-2">Chatbot</a>
+    </div>
+    {% else %}
+    <div class="flex items-center gap-10 text-lg">
+      <a href="/home" class="flex items-center gap-2 px-4 py-2 rounded-xl">Home</a>
+      <a href="/patients" class="flex items-center gap-2">Patients</a>
+      <a href="/firstaid/identify" class="flex items-center gap-2">Identify Medicens</a>
+      <a href="/firstaid/voice" class="flex items-center gap-2">Chatbot</a>
+    </div>
+    {% endif %}
+
+    <div class="flex items-center gap-20 text-lg font-semibold">
+      <p class="text-amber-500">{{user.first_name}}</p>
+      {% if 'id' in request.session %}
+      <a href="/logout" class="hover:underline">Logout</a>
+      {% else %}
+      <a href="/login" class="hover:underline">Login</a>
+      {% endif %}
+    </div>
+  </nav>
+  <h1 class="text-2xl font-semibold text-gray-800 mb-6 mt-6">AI Medicine Identifier</h1>
+
+  <form method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+    {% csrf_token %}
+    <input 
+      type="file" 
+      name="image" 
+      accept="image/jpeg,image/png" 
+      required
+      class="block w-full border border-gray-300 rounded p-2 mb-4 text-sm"
+    >
+    <button 
+      type="submit" 
+      class="w-full bg-gray-600  text-white py-2 rounded font-medium transition">
+      Identify
+    </button>
+  </form>
+
+  {% if error %}
+    <div class="text-red-600 mt-4">{{ error }}</div>
+  {% endif %}
+
+  {% if result %}
+    <div class="bg-white mt-6 p-4 rounded-lg shadow w-full max-w-md">
+      <h3 class="text-lg font-semibold mb-2 text-gray-700">AI Result:</h3>
+      <pre class="whitespace-pre-wrap text-gray-800 text-sm">
+        {{ result|safe|linebreaksbr|cut:"**" }}
+      </pre>
+    </div>
+  {% endif %}
+</body>
+</html>

@@ -11,6 +11,11 @@ BLOOD_TYPES = {'A+','A-','B+','B-','AB+','AB-','O+','O-'}
 BP_RE = re.compile(r'^\d{2,3}/\d{2,3}$')
 
 
+
+
+
+
+
 class UserManager(models.Manager):
     def register_validator(self, postData):
 
@@ -19,7 +24,7 @@ class UserManager(models.Manager):
         first = (postData.get('first_name') or '').strip()
         last = (postData.get('last_name') or '').strip()
         pw = postData.get('password') or ''
-        cpw = postData.get('confirmPassword') or ''
+        cpw = postData.get('confirm') or ''
         role = (postData.get('role') or '').strip().lower()
         phone = (postData.get('phone') or '').strip()
 
@@ -37,8 +42,15 @@ class UserManager(models.Manager):
 
         if phone and not PHONE_RE.match(phone):
             errors['phone'] = "Phone must be 7–15 digits, optionally starting with '+'."
+        
+        if len(pw) < 8:
+            errors['password'] = 'Password must be at least 8 characters.'
+
+        if pw != cpw:
+            errors['confirmPassword'] = 'Passwords do not match.'
 
         return errors
+
 
     def login_validator(self, postData):
 
@@ -65,22 +77,40 @@ class UserManager(models.Manager):
     
 
 
+
+class MedicalCaseManager(models.Manager):
+    def case_validator(self, post):
+        errors = {}
+        doctor_id = post['doctor_id']
+        patient_id = post['patient_id']
+        if not doctor_id or not patient_id:
+            errors['user'] = 'User and Patient is required.'
+        else:
+            if post['symptoms'] == '':
+                errors['symptoms'] = "Symptoms should not be empty"
+            if post['title'] == '':
+                errors['title'] = "Tilte should not be empty"
+        
+        return errors
+
+
+
 class DoctorManager(models.Manager):
     def create_validator(self, postData):
     
         errors = {}
 
-        user_id = postData.get('user_id')
         specialization = (postData.get('specialization') or '').strip()
         yoe_raw = postData.get('years_of_experience')
-        availability = (postData.get('availability') or postData.get('availability') or '').strip()
-
-        user = None
-        if not user_id:
-            errors['user'] = 'User is required.'
+        bio = (postData.get('bio') or '').strip()
 
         if not specialization:
             errors['specialization'] = 'Specialization is required.'
+        if specialization not in ('Dermatology', 'General Surgery', 'Neurology', 'Allergist'):
+            errors['specialization'] = 'Specialization must be one of A, B, C, D, or E.'
+
+        if not bio or len(bio) < 10:
+            errors['bio'] = 'Bio must be at least 10 characters.'
 
         try:
             yoe = int(yoe_raw)
@@ -89,8 +119,6 @@ class DoctorManager(models.Manager):
         except (TypeError, ValueError):
             errors['years_of_experience'] = 'Years of experience must be an integer.'
 
-        if not availability:
-            errors['availability'] = 'availability is required.'
 
         return errors
     
@@ -100,18 +128,16 @@ class PatientManager(models.Manager):
 
         errors = {}
 
-        user_id = postData.get('user_id')
         age_raw = postData.get('age')
         blood_type = (postData.get('blood_type') or '').strip().upper()
         blood_pressure = (postData.get('blood_pressure') or '').strip()
         print(blood_pressure)
 
-        if not user_id:
-            errors['user'] = 'User is required.'
         try:
             age = int(age_raw)
             if age < 1 or age > 120:
                 errors['age'] = 'Age must be between 1 and 120.'
+            
         except (TypeError, ValueError):
             errors['age'] = 'Age must be an integer.'
 
@@ -292,14 +318,20 @@ def filter_doctors(query: str = ""):
 def get_user(id):
     return User.objects.get(id = id)
 
+def get_doctor(id):
+    return Doctor.objects.get(id = id)
 
 def get_all_patients(doctor_id):
     user = get_user(doctor_id)
     doctor = user.doctor_profile
     patients = Patient.objects.filter(appointments__doctor = doctor).distinct()
+    print("pattients")
+    print(patients)
+
     return patients
 
 def add_case(post):
+    print(post['doctor_id'])
     doctor = get_user(post['doctor_id'])
     patient = get_user(post['patient_id'])  
     return MedicalCase.objects.create(title = post['title'], symptoms = post['symptoms'], diagnosis = post['diagnosis'], treatment = post['treatment'], reason = post['reason'], doctor = doctor.doctor_profile, patient = patient.patient_profile)

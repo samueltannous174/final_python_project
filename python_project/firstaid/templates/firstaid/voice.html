@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>First-Aid Voice Help (High Accuracy)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-blue-50 flex items-center  min-h-screen flex-col">
+     <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white w-full ">
+    <h1 class="text-2xl font-semibold">CareClinic</h1>
+
+    {% if user.role == 'patient' %}
+    <div class="flex items-center gap-10 text-lg">
+      <a href="/home" class="flex items-center gap-2 px-4 py-2 rounded-xl">Home</a>
+      <a href="/doctors" class="flex items-center gap-2">Doctors</a>
+      <a href="/firstaid/identify" class="flex items-center gap-2">Identify Medicens</a>
+      <a href="/firstaid/voice" class="flex items-center gap-2">Chatbot</a>
+    </div>
+    {% else %}
+    <div class="flex items-center gap-10 text-lg">
+      <a href="/home" class="flex items-center gap-2 px-4 py-2 rounded-xl">Home</a>
+      <a href="/patients" class="flex items-center gap-2">Patients</a>
+      <a href="/firstaid/identify" class="flex items-center gap-2">Identify Medicens</a>
+      <a href="/firstaid/voice" class="flex items-center gap-2">Chatbot</a>
+    </div>
+    {% endif %}
+
+    <div class="flex items-center gap-20 text-lg font-semibold">
+      <p class="text-amber-500">{{user.first_name}}</p>
+      {% if 'id' in request.session %}
+      <a href="/logout" class="hover:underline">Logout</a>
+      {% else %}
+      <a href="/login" class="hover:underline">Login</a>
+      {% endif %}
+    </div>
+  </nav>
+  <div class="w-full max-w-md bg-white rounded-2xl shadow p-6 text-center mt-9">
+    <h1 class="text-xl font-semibold">First-Aid Voice Help</h1>
+    <p id="status" class="mt-2 text-sm text-gray-600">Hold the mic and speak…</p>
+
+    <div class="mt-4 flex items-center justify-center gap-3">
+      <div class="w-40 h-2 rounded bg-gray-200 overflow-hidden">
+        <div id="meterBar" class="h-2 bg-emerald-500 w-0"></div>
+      </div>
+      <span id="sec" class="text-xs text-gray-500">0.0s</span>
+    </div>
+
+    <button id="micBtn" class="mt-4 w-32 h-32 rounded-full bg-gray-900 text-white text-lg font-medium active:scale-95">
+       Hold to Talk
+    </button>
+
+    <div class="mt-4 text-left">
+      <div id="heardText" class="text-xs text-gray-600 hidden">
+        <span class="font-semibold">You said:</span>
+        <span id="heardTextContent"></span>
+      </div>
+
+      <div id="voiceAnswer" class="mt-2 text-sm text-gray-800 whitespace-pre-wrap hidden"></div>
+    </div>
+
+    <div class="mt-8 text-left">
+      <label for="txtQuestion" class="block text-sm font-medium text-gray-700">Or type your question</label>
+      <div class="mt-2 flex gap-2">
+        <input id="txtQuestion" type="text" 
+               class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-400" />
+        <button id="sendTextBtn"
+                class="rounded-lg bg-gray-600 px-4 py-2 text-white text-sm font-medium active:scale-95">
+          Send
+        </button>
+      </div>
+      <label class="mt-2 inline-flex items-center gap-2 text-xs text-gray-600">
+        <input id="speakAnswer" type="checkbox" class="rounded border-gray-300">
+        Also speak the answer
+      </label>
+
+      <div id="textAnswer" class="mt-3 text-sm text-gray-800 whitespace-pre-wrap hidden"></div>
+    </div>
+
+    <audio id="reply" class="mt-6 w-full" controls></audio>
+
+  </div>
+
+  <script>
+    const TARGET_SR = 16000;
+    const MAX_SECONDS = 20;
+    const POST_URL = "/firstaid/voice-help/";
+    const POST_URL_JSON = "/firstaid/voice-help/?format=json";
+    const ASK_URL = "/firstaid/ask/";
+    const TEXT_TTS_URL = "/firstaid/text-help/";
+    const USE_ENHANCE = true;
+    const USE_HQ_RESAMPLE = true;
+    const USE_AUTO_SILENCE = true;
+
+    const micBtn = document.getElementById('micBtn');
+    const statusEl = document.getElementById('status');
+    const replyEl = document.getElementById('reply');
+    const meterBar = document.getElementById('meterBar');
+    const secEl = document.getElementById('sec');
+    const txtQuestion = document.getElementById('txtQuestion');
+    const sendTextBtn = document.getElementById('sendTextBtn');
+    const textAnswer = document.getElementById('textAnswer');
+    const speakAnswer = document.getElementById('speakAnswer');
+    const heardWrap = document.getElementById('heardText');
+    const heardSpan = document.getElementById('heardTextContent');
+    const voiceAnsEl = document.getElementById('voiceAnswer');
+
+    let audioCtx, mediaStream, sourceNode, analyser;
+    let processor;
+    let isRecording = false;
+    let startTs = 0;
+    let captureL = [];
+    let inputSr = 48000;
+    let meterRAF;
+
+    const VAD_MIN_SECS = 1.2;
+    const VAD_HOLD_SECS = 0.9;
+    const VAD_THRESH = 0.015;
+    let vadSilenceMs = 0;
+
+    async function ensureAudio() {
+      if (audioCtx) return;
+      mediaStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: 1,
+          echoCancellation: USE_ENHANCE,
+          noiseSuppression: USE_ENHANCE,
+          autoGainControl: USE_ENHANCE,
+          sampleRate: 48000,
+        }
+      });
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 48000 });
+      inputSr = audioCtx.sampleRate;
+      sourceNode = audioCtx.createMediaStreamSource(mediaStream);
+      const dcBlock = audioCtx.createBiquadFilter();
+      dcBlock.type = 'highpass';
+      dcBlock.frequency.value = 30;
+      sourceNode.connect(dcBlock);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 1024;
+      dcBlock.connect(analyser);
+      const bufferSize = 2048;
+      processor = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+      dcBlock.connect(processor);
+      processor.connect(audioCtx.destination);
+      processor.onaudioprocess = (e) => {
+        if (!isRecording) return;
+        const ch0 = e.inputBuffer.getChannelData(0);
+        const copy = new Float32Array(ch0);
+        captureL.push(copy);
+        if (USE_AUTO_SILENCE) {
+          let sum = 0;
+          for (let i = 0; i < copy.length; i++) sum += copy[i]*copy[i];
+          const rms = Math.sqrt(sum / copy.length);
+          const now = performance.now();
+          const elapsed = (now - startTs) / 1000;
+          if (elapsed >= VAD_MIN_SECS) {
+            if (rms < VAD_THRESH) {
+              vadSilenceMs += (bufferSize / inputSr) * 1000;
+              if (vadSilenceMs / 1000 >= VAD_HOLD_SECS) stopRec();
+            } else {
+              vadSilenceMs = 0;
+            }
+          }
+        }
+        if ((performance.now() - startTs) / 1000 > MAX_SECONDS) stopRec();
+      };
+    }
+
+    function startMeter() {
+      const data = new Uint8Array(analyser.fftSize);
+      function tick() {
+        metre();
+        meterRAF = requestAnimationFrame(tick);
+      }
+      function metre() {
+        analyser.getByteTimeDomainData(data);
+        let sum = 0;
+        for (let i = 0; i < data.length; i++) {
+          const v = (data[i] - 128) / 128;
+          sum += v * v;
+        }
+        const rms = Math.sqrt(sum / data.length);
+        meterBar.style.width = Math.min(100, Math.round(rms * 220)) + "%";
+        if (isRecording) {
+          const secs = ((performance.now() - startTs) / 1000).toFixed(1);
+          secEl.textContent = `${secs}s`;
+        } else {
+          secEl.textContent = "0.0s";
+        }
+      }
+      tick();
+    }
+    function stopMeter() { if (meterRAF) cancelAnimationFrame(meterRAF); }
+
+    async function startRec() {
+      if (isRecording) return;
+      try {
+        await ensureAudio();
+      } catch {
+        statusEl.textContent = "Mic permission denied.";
+        return;
+      }
+      await audioCtx.resume();
+      captureL = [];
+      vadSilenceMs = 0;
+      isRecording = true;
+      startTs = performance.now();
+      micBtn.textContent = "Recording…";
+      micBtn.classList.add("bg-red-600");
+      statusEl.textContent = "Listening…";
+      startMeter();
+    }
+
+    async function stopRec() {
+      if (!isRecording) return;
+      isRecording = false;
+      micBtn.textContent = "Hold to Talk";
+      micBtn.classList.remove("bg-red-600");
+      stopMeter();
+      statusEl.textContent = "Processing…";
+      const mono = concatFloat32(captureL);
+      captureL = [];
+      if (!mono || mono.length === 0) {
+        statusEl.textContent = "No audio captured. Try again.";
+        return;
+      }
+      const emphasized = preEmphasis(mono, 0.97);
+      let wavFloat;
+      try {
+        if (USE_HQ_RESAMPLE) {
+          wavFloat = await resampleOffline(emphasized, inputSr, TARGET_SR);
+        } else {
+          wavFloat = emphasized;
+        }
+      } catch {
+        wavFloat = resampleLinear(emphasized, inputSr, TARGET_SR);
+      }
+      const normalized = normalizeAndLimit(wavFloat, -3);
+      const srForHeader = USE_HQ_RESAMPLE ? TARGET_SR : inputSr;
+      const wavBlob = encodeWavMono(normalized, srForHeader, 16);
+      const fd = new FormData();
+      fd.append("audio", wavBlob, "recording.wav");
+      try {
+        const res = await fetch(POST_URL_JSON, { method: "POST", body: fd });
+        const ctype = res.headers.get("content-type") || "";
+        if (!res.ok) throw new Error(await res.text());
+        if (ctype.includes("application/json")) {
+          const j = await res.json();
+          if (j.transcript) {
+            heardSpan.textContent = j.transcript;
+            heardWrap.classList.remove("hidden");
+          } else {
+            heardWrap.classList.add("hidden");
+          }
+          voiceAnsEl.textContent = j.answer || "";
+          voiceAnsEl.classList.remove("hidden");
+          if (j.audio_b64) {
+            replyEl.src = j.audio_b64;
+            statusEl.textContent = "Done";
+            try { await replyEl.play(); } catch {}
+          } else {
+            replyEl.removeAttribute("src");
+            statusEl.textContent = "Answer ready (no audio)";
+          }
+        } else if (ctype.startsWith("audio/")) {
+          const buf = await res.arrayBuffer();
+          const url = URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
+          replyEl.src = url;
+          statusEl.textContent = "Done";
+          try { await replyEl.play(); } catch {}
+        } else {
+          statusEl.textContent = "Unexpected response type";
+        }
+      } catch {
+        statusEl.textContent = "Error. Try again.";
+      }
+    }
+
+    function maybeStop() { if (isRecording) stopRec(); }
+
+    async function sendTextQuestion() {
+      const q = (txtQuestion.value || "").trim();
+      if (!q) return;
+      statusEl.textContent = "Processing…";
+      textAnswer.classList.add("hidden");
+      replyEl.removeAttribute("src");
+      try {
+        const form = new FormData();
+        form.append("q", q);
+        const res = await fetch(ASK_URL, { method: "POST", body: form });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        const answer = data.answer || "";
+        textAnswer.textContent = answer;
+        textAnswer.classList.remove("hidden");
+        statusEl.textContent = "Answer ready";
+        if (speakAnswer.checked) {
+          const form2 = new FormData();
+          form2.append("q", answer);
+          const res2 = await fetch(TEXT_TTS_URL, { method: "POST", body: form2 });
+          const ctype = res2.headers.get("content-type") || "";
+          if (!res2.ok) {
+            statusEl.textContent = "Done (TTS unavailable)";
+          } else if (ctype.startsWith("audio/")) {
+            const buf = await res2.arrayBuffer();
+            const url = URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
+            replyEl.src = url;
+            statusEl.textContent = "Done";
+            try { await replyEl.play(); } catch {}
+          } else {
+            statusEl.textContent = "Done (TTS unavailable)";
+          }
+        }
+      } catch {
+        statusEl.textContent = "Error. Try again.";
+      }
+    }
+
+    function concatFloat32(chunks) {
+      let total = 0;
+      for (const c of chunks) total += c.length;
+      const out = new Float32Array(total);
+      let off = 0;
+      for (const c of chunks) { out.set(c, off); off += c.length; }
+      return out;
+    }
+
+    function preEmphasis(x, a = 0.97) {
+      const y = new Float32Array(x.length);
+      let prev = 0;
+      for (let i = 0; i < x.length; i++) {
+        y[i] = x[i] - a * prev;
+        prev = x[i];
+      }
+      return y;
+    }
+
+    function normalizeAndLimit(x, peakDb = -3) {
+      const target = Math.pow(10, peakDb / 20);
+      let peak = 1e-9;
+      for (let i = 0; i < x.length; i++) peak = Math.max(peak, Math.abs(x[i]));
+      const gain = Math.min(1, target / peak);
+      const y = new Float32Array(x.length);
+      for (let i = 0; i < x.length; i++) y[i] = Math.tanh(x[i] * gain * 2);
+      return y;
+    }
+
+    function resampleLinear(src, srcRate, dstRate) {
+      if (srcRate === dstRate) return src;
+      const ratio = dstRate / srcRate;
+      const dstLen = Math.round(src.length * ratio);
+      const out = new Float32Array(dstLen);
+      const step = (src.length - 1) / (dstLen - 1);
+      for (let i = 0; i < dstLen; i++) {
+        const pos = i * step;
+        const idx = Math.floor(pos);
+        const frac = pos - idx;
+        const s1 = src[idx] || 0;
+        const s2 = src[idx + 1] || s1;
+        out[i] = s1 + (s2 - s1) * frac;
+      }
+      return out;
+    }
+
+    async function resampleOffline(src, srcRate, dstRate) {
+      if (srcRate === dstRate) return src;
+      const length = src.length;
+      const srcCtx = new OfflineAudioContext(1, length, srcRate);
+      const buffer = srcCtx.createBuffer(1, length, srcRate);
+      buffer.copyToChannel(src, 0, 0);
+      const srcNode = srcCtx.createBufferSource();
+      srcNode.buffer = buffer;
+      srcNode.connect(srcCtx.destination);
+      srcNode.start();
+      const rendered = await srcCtx.startRendering();
+      const dstLen = Math.ceil(length * (dstRate / srcRate));
+      const dstCtx = new OfflineAudioContext(1, dstLen, dstRate);
+      const play = dstCtx.createBufferSource();
+      play.buffer = rendered;
+      play.connect(dstCtx.destination);
+      play.start();
+      const outBuf = await dstCtx.startRendering();
+      const out = new Float32Array(outBuf.length);
+      outBuf.copyFromChannel(out, 0, 0);
+      return out;
+    }
+
+    function encodeWavMono(float32, sampleRate, bitsPerSample = 16) {
+      const bytesPerSample = bitsPerSample / 8;
+      const buffer = new ArrayBuffer(44 + float32.length * bytesPerSample);
+      const view = new DataView(buffer);
+      writeStr(view, 0, "RIFF");
+      view.setUint32(4, 36 + float32.length * bytesPerSample, true);
+      writeStr(view, 8, "WAVE");
+      writeStr(view, 12, "fmt ");
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * bytesPerSample, true);
+      view.setUint16(32, bytesPerSample, true);
+      view.setUint16(34, bitsPerSample, true);
+      writeStr(view, 36, "data");
+      view.setUint32(40, float32.length * bytesPerSample, true);
+      let offset = 44;
+      if (bitsPerSample === 16) {
+        for (let i = 0; i < float32.length; i++, offset += 2) {
+          let s = Math.max(-1, Math.min(1, float32[i]));
+          view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        }
+      } else if (bitsPerSample === 24) {
+        for (let i = 0; i < float32.length; i++, offset += 3) {
+          let s = Math.max(-1, Math.min(1, float32[i])) * 8388607;
+          const v = s | 0;
+          view.setUint8(offset, v & 0xFF);
+          view.setUint8(offset + 1, (v >> 8) & 0xFF);
+          view.setUint8(offset + 2, (v >> 16) & 0xFF);
+        }
+      }
+      return new Blob([view], { type: "audio/wav" });
+      function writeStr(dv, pos, s) { for (let i = 0; i < s.length; i++) dv.setUint8(pos + i, s.charCodeAt(i)); }
+    }
+
+    micBtn.addEventListener('mousedown', startRec);
+    micBtn.addEventListener('touchstart', (e)=>{ e.preventDefault(); startRec(); }, {passive:false});
+    micBtn.addEventListener('mouseup', stopRec);
+    micBtn.addEventListener('mouseleave', maybeStop);
+    micBtn.addEventListener('touchend', (e)=>{ e.preventDefault(); stopRec(); }, {passive:false});
+    sendTextBtn.addEventListener('click', (e)=>{ e.preventDefault(); sendTextQuestion(); });
+    txtQuestion.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') { e.preventDefault(); sendTextQuestion(); }});
+    document.addEventListener('visibilitychange', () => { if (document.hidden) maybeStop(); });
+  </script>
+</body>
+</html>
