@@ -9,16 +9,24 @@
   </head>
 
   <body class=" text-gray-800 bg-gray-50 w-ful">
-    <nav class="fixed top-0 left-0 w-full z-50 bg-[#475569] flex justify-between items-center px-10 py-4 text-white ">
-      <h1 class="text-2xl font-semibold">CareClinic</h1>
-      <div class="flex items-center gap-10 text-lg">
-        <a href="/home" class="hover:underline">Home</a>
-        <a href="/appointments" class="hover:underline">Appointments</a>
-        <a href="/doctors" class="hover:underline">Doctors</a>
-        <a href="/history" class="hover:underline">History</a>
-      </div>
-      <a href="/logout" class="font-semibold hover:underline">Logout</a>
-    </nav>
+  <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white">
+    <h1 class="text-2xl font-semibold">CareClinic</h1>
+    <div class="flex items-center gap-10 text-lg">
+      <a href="/home" class="flex items-center gap-2 px-4 py-2 rounded-xl">Home</a>
+      <a href="/doctors" class="flex items-center gap-2">Doctors</a>
+      <a href="/firstaid/identify" class="flex items-center gap-2">Identify Medicens</a>
+      <a href="/firstaid/voice" class="flex items-center gap-2">Chatbot</a>
+    </div>
+
+    <div class="flex items-center gap-20 text-lg font-semibold">
+      <p class="text-amber-500">{{user.first_name}}</p>
+      {% if 'id' in request.session %}
+      <a href="/logout" class="hover:underline">Logout</a>
+      {% else %}
+      <a href="/login" class="hover:underline">Login</a>
+      {% endif %}
+    </div>
+  </nav>
 
     <main class="pt-24 max-w-7xl mx-auto px-4 h-[200px]">
       <div class="mb-6 flex items-center gap-2 text-gray-600 ">
@@ -32,7 +40,7 @@
             DSJ
           </div>
           <div>
-            <h2 class="text-xl font-semibold">Dr. Sarah Johnson</h2>
+            <h2 class="text-xl font-semibold">{{doctor.user.first_name}} {{doctor.user.last_name}}</h2>
             <p class="text-gray-500 mb-2">Cardiology</p>
 
             <div class="flex flex-wrap items-center gap-3 text-sm mb-2">
@@ -48,7 +56,6 @@
             <div class="flex flex-wrap gap-4 text-sm text-gray-600">
               <div class="flex items-center gap-2">
                 <i data-lucide="mail" class="w-4 h-4"></i>
-                <span>sarah.johnson@careclinic.com</span>
               </div>
               <div class="flex items-center gap-2">
               </div>
@@ -76,7 +83,7 @@
           <span>About</span>
         </div>
         <p class="text-gray-600 leading-relaxed">
-          Dr. Sarah Johnson is a highly experienced cardiologist with over 12 years of practice.
+           a highly experienced cardiologist with over 12 years of practice.
           She specializes in preventive cardiology, heart disease management, and cardiovascular interventions.
           Dr. Johnson is known for her compassionate approach to patient care and her dedication to staying at the forefront of cardiac medicine.
         </p>

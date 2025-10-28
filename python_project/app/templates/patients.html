@@ -15,13 +15,15 @@
         <div class="flex items-center gap-10 text-lg">
             <a href="/home" class="flex items-center gap-2 px-4 py-2 rounded-xl">Home</a>
             <a href="/doctors" class="flex items-center gap-2">Doctors</a>
-            <a href="/history" class="flex items-center gap-2">History</a>
+            <a href="/firstaid/identify" class="flex items-center gap-2">Identify Medicens</a>
+            <a href="/firstaid/voice" class="flex items-center gap-2">Chatbot</a>
         </div>
         {% else %}
         <div class="flex items-center gap-10 text-lg">
             <a href="/home" class="flex items-center gap-2 px-4 py-2 rounded-xl">Home</a>
             <a href="/patients" class="flex items-center gap-2">Patients</a>
-            <a href="/history" class="flex items-center gap-2">History</a>
+            <a href="/firstaid/identify" class="flex items-center gap-2">Identify Medicens</a>
+            <a href="/firstaid/voice" class="flex items-center gap-2">Chatbot</a>
         </div>
         {% endif %}
         <div class="flex items-center gap-20 text-lg font-semibold">
@@ -35,41 +37,29 @@
     </nav>
 
     <div class="mx-auto max-w-7xl p-6">
-        <form action="/filter_patients/" method="post" class="flex items-center gap-3">
-            {% csrf_token %}
-            <div class="flex-1">
-                <div class="relative">
-                    <input name="q" type="text" placeholder="Search doctors by name or specialty"
-                        value="{{ request.POST.q|default:'' }}"
-                        class="w-full rounded-full border border-gray-200 bg-white py-3 pl-4 pr-4 text-[15px] outline-none" />
-                </div>
-            </div>
-            <button type="submit"
-                class="items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
-                Filter
-            </button>
-        </form>
 
         <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {% for appointment in appointments %}
+            {% for patient in patients %}
             <div class="rounded-2xl border border-gray-200 bg-white p-6">
                 <div class="flex items-start gap-4">
                     <div
                         class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-600">
-                        {{ appointment.patient.user.first_name|first|upper }}{{ appointment.patient.user.last_name|first|upper }}
+                        {{ patient.user.first_name|first|upper }}{{ patient.user.last_name|first|upper }}
                     </div>
                     <div class="flex-1">
                         <h3 class="text-lg font-semibold">
-                            Mr/Ms. {{appointment.patient.user.first_name}} {{appointment.patient.user.last_name}}
+                            Mr/Ms. {{patient.user.first_name}} {{patient.user.last_name}}
                         </h3>
                     </div>
                 </div>
-                <form class="mt-5 flex items-center justify-between" action="/patient/{{appointment.patient.user.id}}" method="get">
-                        <input type="submit" value="Show Details" class="mx-auto inline-flex items-center rounded-xl bg-[#51A2FE] px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                <form class="mt-5 flex items-center justify-between" action="/patient/{{patient.user.id}}" method="get">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{user.id}}" name="doctor_id">
+                        <input type="submit" value="Show Details" class="mx-auto inline-flex items-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
                 </form>
             </div>
             {% empty %}
-            <div class="col-span-full text-center text-gray-600">No patients found.</div>
+            <div class="col-span-full text-center text-gray-600">No Patient found.</div>
             {% endfor %}
         </div>
     </div>

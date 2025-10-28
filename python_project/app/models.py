@@ -11,6 +11,11 @@ BLOOD_TYPES = {'A+','A-','B+','B-','AB+','AB-','O+','O-'}
 BP_RE = re.compile(r'^\d{2,3}/\d{2,3}$')
 
 
+
+
+
+
+
 class UserManager(models.Manager):
     def register_validator(self, postData):
 
@@ -46,6 +51,7 @@ class UserManager(models.Manager):
 
         return errors
 
+
     def login_validator(self, postData):
 
         errors = {}
@@ -71,6 +77,24 @@ class UserManager(models.Manager):
     
 
 
+
+class MedicalCaseManager(models.Manager):
+    def case_validator(self, post):
+        errors = {}
+        doctor_id = post['doctor_id']
+        patient_id = post['patient_id']
+        if not doctor_id or not patient_id:
+            errors['user'] = 'User and Patient is required.'
+        else:
+            if post['symptoms'] == '':
+                errors['symptoms'] = "Symptoms should not be empty"
+            if post['title'] == '':
+                errors['title'] = "Tilte should not be empty"
+        
+        return errors
+
+
+
 class DoctorManager(models.Manager):
     def create_validator(self, postData):
     
@@ -79,9 +103,6 @@ class DoctorManager(models.Manager):
         specialization = (postData.get('specialization') or '').strip()
         yoe_raw = postData.get('years_of_experience')
         bio = (postData.get('bio') or '').strip()
-
-        
-
 
         if not specialization:
             errors['specialization'] = 'Specialization is required.'
@@ -127,6 +148,7 @@ class PatientManager(models.Manager):
             errors['blood_pressure'] = "Blood pressure must look like '120/80'."
 
         return errors
+
 
 
 
@@ -197,13 +219,15 @@ class MedicalCase(models.Model):
     diagnosis = models.TextField(blank=True, null=True)
     treatment = models.TextField(blank=True, null=True)
     reason = models.TextField(blank=True, null=True)
+    objects = MedicalCaseManager()
+
 
     def __str__(self):
         return f"{self.title} ({self.patient.user.last_name})"
 
 def create_user_with_role(data,hashed):
     role = data.get('role', '').lower().strip()
-    
+
     user = User.objects.create(
             email=data['email'].strip().lower(),
             first_name=data['first_name'].strip(),
@@ -271,9 +295,25 @@ def filter_doctors(query: str = ""):
 def get_user(id):
     return User.objects.get(id = id)
 
+def get_doctor(id):
+    return Doctor.objects.get(id = id)
 
 def get_all_patients(doctor_id):
     user = get_user(doctor_id)
     doctor = user.doctor_profile
-    app = doctor.appointments.all()
-    return app
+    patients = Patient.objects.filter(appointments__doctor = doctor).distinct()
+    print("pattients")
+    print(patients)
+
+    return patients
+
+def add_case(post):
+    print(post['doctor_id'])
+    doctor = get_user(post['doctor_id'])
+    patient = get_user(post['patient_id'])  
+    return MedicalCase.objects.create(title = post['title'], symptoms = post['symptoms'], diagnosis = post['diagnosis'], treatment = post['treatment'], reason = post['reason'], doctor = doctor.doctor_profile, patient = patient.patient_profile)
+
+def get_all_patient_cases(user_id):
+    user = get_user(user_id)
+    patient = user.patient_profile
+    return patient.medical_cases.all()

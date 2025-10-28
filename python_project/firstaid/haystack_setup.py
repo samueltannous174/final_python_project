@@ -1,4 +1,3 @@
-# haystack_setup.py
 from pathlib import Path
 from typing import List, Sequence, Optional
 

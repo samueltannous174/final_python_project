@@ -10,7 +10,6 @@ from urllib.parse import urlencode
 def user_details(id):
     return models.get_user(id)
 
-
 def login(request):
     return render(request,'login.html')
 
@@ -24,12 +23,31 @@ def showRegisterDoctor(request):
     return render(request,'register_doctor.html')
 
 def showPatientDetails(request, id):
-    user = models.get_user(id)
+    doctor_id = request.session.get('id')
+    doctor = models.get_user(doctor_id) if doctor_id else None
+
+    patient = models.get_user(id)
+    cases = models.get_all_patient_cases(id)
+
     context = {
-        'user': user,
-        'patient': user.patient_profile
+        'id': id,
+        'user': doctor,
+        'patient': patient,
+        'details': patient.patient_profile,
+        'cases': cases,
     }
     return render(request, 'patient_details.html', context)
+
+def doctorProfile(request, id):
+    doctor = models.get_doctor(id)
+    print(doctor)
+    context = {
+        'doctor': doctor,
+    }
+
+    return render(request,'doctor_profile.html',context)
+
+
 
 def  showHome(request):
     if 'id' not in request.session:
@@ -43,8 +61,9 @@ def  showHome(request):
 def showPatients(request):
     if 'id' not in request.session:
         return redirect('/login')
+    print(request.session['id'])
     context = {
-        'appointments': models.get_all_patients(request.session['id']),
+        'patients': models.get_all_patients(request.session['id']),
         'user': user_details(request.session['id'])
     }
     return render(request, 'patients.html', context)
@@ -80,7 +99,6 @@ def showLogin(request):
 
 
 def RegisterUser(request):
-
     if request.method == 'POST':
         print(request.POST)
 
@@ -107,23 +125,21 @@ def RegisterUser(request):
     return redirect('/')
 
 
-def loginSubmit(request):
+def loginSubmit(request): 
     print(request.POST)
     if request.method == 'POST':
         errors = models.User.objects.login_validator(request.POST)
         if errors:
             for msg in errors.values():
                 messages.error(request, msg, extra_tags='login')
-            return redirect('/')
+            return redirect('/login')
         
         user = models.login_user(request.POST)
         request.session['id'] = user.id
-        
         messages.success(request, f"Welcome back, {user.first_name}!", extra_tags='login')
         return redirect('/home')
 
     return redirect('/')
-
 
 from django.shortcuts import render
 from django.db.models import Q
@@ -278,15 +294,28 @@ def showAppoitments(request):
 def filterPatients (request):
     q = (request.POST.get('q') or '').strip()
     patients = (
-        Patient.objects.select_related('user')
+        models.Patient.objects.select_related('user')
         .filter(
             Q(user__first_name__icontains=q)
             | Q(user__last_name__icontains=q)
             | Q(user__email__icontains=q)
         )
-        if q else Patient.objects.select_related('user').all()
+        if q else models.Patient.objects.select_related('user').all()
     )
     if request.headers.get('HX-Request'):
         return render(request, "partials/_patient_cards.html", {"patients": patients})
 
     return render(request,'patients.html')
+
+def addCase(request, patient_id):
+    if request.method == 'POST':
+        errors = models.MedicalCase.objects.case_validator(request.POST)
+        if errors:
+            for msg in errors.values():
+                messages.error(request, msg)
+            return redirect(f'/patient/{patient_id}')
+        
+        models.add_case(request.POST)
+        return redirect(f'/patient/{patient_id}')
+    
+    return redirect(f'/add_case/{patient_id}')

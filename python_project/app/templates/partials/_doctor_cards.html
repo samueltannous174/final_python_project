@@ -6,9 +6,9 @@
           {{ doctor.user.first_name|first|upper }}{{ doctor.user.last_name|first|upper }}
         </div>
         <div class="flex-1">
-          <h3 class="text-lg font-semibold">
+          <a href="/doctor/{{ doctor.id }}" class="text-lg font-semibold">
             Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}
-          </h3>
+          </a>
           <p class="text-sm text-gray-500">{{ doctor.specialization }}</p>
         </div>
       </div>

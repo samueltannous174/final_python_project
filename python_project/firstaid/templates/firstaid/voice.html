@@ -6,8 +6,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-blue-50     flex flex-col  w-full ">
-  <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white">
+<body class="bg-blue-50 flex items-center  min-h-screen flex-col">
+     <nav class="bg-[#475569] flex justify-between items-center px-10 py-4 text-white w-full ">
     <h1 class="text-2xl font-semibold">CareClinic</h1>
 
     {% if user.role == 'patient' %}
@@ -35,7 +35,7 @@
       {% endif %}
     </div>
   </nav>
-  <div class="w-full max-w-md bg-white rounded-2xl shadow p-6 text-center mx-auto  mt-10  ">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow p-6 text-center mt-9">
     <h1 class="text-xl font-semibold">First-Aid Voice Help</h1>
     <p id="status" class="mt-2 text-sm text-gray-600">Hold the mic and speak…</p>
 
@@ -62,7 +62,7 @@
     <div class="mt-8 text-left">
       <label for="txtQuestion" class="block text-sm font-medium text-gray-700">Or type your question</label>
       <div class="mt-2 flex gap-2">
-        <input id="txtQuestion" type="text" placeholder='e.g. "If I’m burned, what to do?"'
+        <input id="txtQuestion" type="text" 
                class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-400" />
         <button id="sendTextBtn"
                 class="rounded-lg bg-gray-600 px-4 py-2 text-white text-sm font-medium active:scale-95">
@@ -136,15 +136,13 @@
       dcBlock.type = 'highpass';
       dcBlock.frequency.value = 30;
       sourceNode.connect(dcBlock);
-
       analyser = audioCtx.createAnalyser();
       analyser.fftSize = 1024;
       dcBlock.connect(analyser);
-
       const bufferSize = 2048;
       processor = audioCtx.createScriptProcessor(bufferSize, 1, 1);
       dcBlock.connect(processor);
-
+      processor.connect(audioCtx.destination);
       processor.onaudioprocess = (e) => {
         if (!isRecording) return;
         const ch0 = e.inputBuffer.getChannelData(0);
@@ -172,10 +170,10 @@
     function startMeter() {
       const data = new Uint8Array(analyser.fftSize);
       function tick() {
-        meter();
+        metre();
         meterRAF = requestAnimationFrame(tick);
       }
-      function meter() {
+      function metre() {
         analyser.getByteTimeDomainData(data);
         let sum = 0;
         for (let i = 0; i < data.length; i++) {
@@ -243,71 +241,38 @@
       const wavBlob = encodeWavMono(normalized, srForHeader, 16);
       const fd = new FormData();
       fd.append("audio", wavBlob, "recording.wav");
-
       try {
-        const res = await fetch(POST_URL_JSON, {
-          method: "POST",
-          body: fd,
-          headers: { "Accept": "application/json" }
-        });
-
-        const ctype = (res.headers.get("content-type") || "").toLowerCase();
+        const res = await fetch(POST_URL_JSON, { method: "POST", body: fd });
+        const ctype = res.headers.get("content-type") || "";
         if (!res.ok) throw new Error(await res.text());
-
-        const showText = (transcript, answer) => {
-          if (transcript && transcript.trim()) {
-            heardSpan.textContent = transcript.trim();
+        if (ctype.includes("application/json")) {
+          const j = await res.json();
+          if (j.transcript) {
+            heardSpan.textContent = j.transcript;
             heardWrap.classList.remove("hidden");
           } else {
             heardWrap.classList.add("hidden");
           }
-          if (answer && answer.trim()) {
-            voiceAnsEl.textContent = answer.trim();
-            voiceAnsEl.classList.remove("hidden");
-          } else {
-            // If we only have audio, still show a helpful line
-            voiceAnsEl.textContent = (transcript && transcript.trim()) ? "Playing audio reply…" : "";
-            voiceAnsEl.classList.toggle("hidden", !voiceAnsEl.textContent);
-          }
-        };
-
-        if (ctype.includes("application/json")) {
-          const j = await res.json();
-
-          const transcript =
-            j.transcript ?? j.transcription ?? j.recognized_text ?? j.text ?? "";
-          const answer =
-            j.answer ?? j.response ?? j.message ?? j.text_answer ?? "";
-
-          showText(transcript, answer);
-
+          voiceAnsEl.textContent = j.answer || "";
+          voiceAnsEl.classList.remove("hidden");
           if (j.audio_b64) {
-            const src = j.audio_b64.startsWith("data:")
-              ? j.audio_b64
-              : `data:audio/wav;base64,${j.audio_b64}`;
-            replyEl.src = src;
+            replyEl.src = j.audio_b64;
             statusEl.textContent = "Done";
             try { await replyEl.play(); } catch {}
           } else {
             replyEl.removeAttribute("src");
-            statusEl.textContent = answer ? "Done" : "Answer ready (no audio)";
+            statusEl.textContent = "Answer ready (no audio)";
           }
-
         } else if (ctype.startsWith("audio/")) {
           const buf = await res.arrayBuffer();
-          const url = URL.createObjectURL(new Blob([buf], { type: ctype }));
+          const url = URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
           replyEl.src = url;
-
-          const transcriptHeader = res.headers.get("x-transcript") || "";
-          showText(transcriptHeader, "Playing audio reply…");
-
           statusEl.textContent = "Done";
           try { await replyEl.play(); } catch {}
         } else {
           statusEl.textContent = "Unexpected response type";
         }
-      } catch (err) {
-        console.error(err);
+      } catch {
         statusEl.textContent = "Error. Try again.";
       }
     }
@@ -326,7 +291,7 @@
         const res = await fetch(ASK_URL, { method: "POST", body: form });
         if (!res.ok) throw new Error(await res.text());
         const data = await res.json();
-        const answer = data.answer || data.response || data.message || "";
+        const answer = data.answer || "";
         textAnswer.textContent = answer;
         textAnswer.classList.remove("hidden");
         statusEl.textContent = "Answer ready";
@@ -334,12 +299,12 @@
           const form2 = new FormData();
           form2.append("q", answer);
           const res2 = await fetch(TEXT_TTS_URL, { method: "POST", body: form2 });
-          const ctype = (res2.headers.get("content-type") || "").toLowerCase();
+          const ctype = res2.headers.get("content-type") || "";
           if (!res2.ok) {
             statusEl.textContent = "Done (TTS unavailable)";
           } else if (ctype.startsWith("audio/")) {
             const buf = await res2.arrayBuffer();
-            const url = URL.createObjectURL(new Blob([buf], { type: ctype }));
+            const url = URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
             replyEl.src = url;
             statusEl.textContent = "Done";
             try { await replyEl.play(); } catch {}
@@ -347,8 +312,7 @@
             statusEl.textContent = "Done (TTS unavailable)";
           }
         }
-      } catch (e) {
-        console.error(e);
+      } catch {
         statusEl.textContent = "Error. Try again.";
       }
     }
