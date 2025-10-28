@@ -127,8 +127,6 @@
           </div>
         </summary>
 
-        <!-- IMPORTANT: include patient id and trailing slash -->
-        <!-- If you named the url 'add_case', prefer the url tag: action="{% url 'add_case' patient.id %}" -->
         <form class="mt-6 space-y-4" action="/add_case/{{ patient.id }}/" method="POST">
           {% csrf_token %}
           <input type="hidden" name="doctor_id" value="{{ user.id }}">

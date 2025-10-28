@@ -122,7 +122,7 @@ def RegisterUser(request):
         request.session['id'] = user.id
         return redirect('/home')
 
-    return redirect('/')
+    return redirect('/register_user')
 
 
 def loginSubmit(request): 
@@ -163,7 +163,7 @@ def filterDoctors(request):
 
 
 
-def logout(request):
+def logout(request): #post
     request.session.flush()
     messages.success(request, "You have been logged out.", extra_tags='login')
     return redirect('/')
